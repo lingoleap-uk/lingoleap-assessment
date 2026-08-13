@@ -1,0 +1,1946 @@
+<div id="lingoleap-test" style="
+  max-width:800px;
+  margin:30px auto;
+  padding:30px;
+  font-family:Arial,sans-serif;
+  background:#ffffff;
+  border-radius:14px;
+  box-shadow:0 4px 18px rgba(0,0,0,0.12);
+">
+
+  <div style="text-align:center;margin-bottom:25px;">
+    <h2 style="margin-bottom:8px;">
+      ⚜️Lingoleap English Proficiency Assessment⚜️
+    </h2>
+    <p style="color:#666;margin:0;">
+      ⚜️Grammar ⚜️ Vocabulary ⚜️ Reading ⚜️ 🎧 Listening
+    </p>
+  </div>
+
+
+  <!-- =========================
+       CANDIDATE INFORMATION
+  ========================== -->
+
+  <div id="candidateSection">
+
+    <label><strong>🟢Candidate Name</strong></label>
+    <input
+      id="candidateName"
+      type="text"
+      placeholder="Your full name"
+      style="width:100%;padding:12px;margin:8px 0 18px;box-sizing:border-box;font-size:16px;"
+    >
+
+    <label><strong>🟢Email</strong></label>
+    <input
+      id="candidateEmail"
+      type="email"
+      placeholder="Your email address"
+      style="width:100%;padding:12px;margin:8px 0 18px;box-sizing:border-box;font-size:16px;"
+    >
+
+    <label><strong>🔲Company</strong></label>
+    <input
+      id="company"
+      type="text"
+      placeholder="Company name (optional)"
+      style="width:100%;padding:12px;margin:8px 0 18px;box-sizing:border-box;font-size:16px;"
+    >
+
+    <label><strong>🔲Department</strong></label>
+    <input
+      id="department"
+      type="text"
+      placeholder="Department (optional)"
+      style="width:100%;padding:12px;margin:8px 0 22px;box-sizing:border-box;font-size:16px;"
+    >
+
+    <div style="
+      background:#eff6ff;
+      padding:16px;
+      border-radius:9px;
+      line-height:1.6;
+      margin-bottom:20px;
+    ">
+      <strong>🛎️Assessment Instructions</strong><br>
+      ✅This section contains 90 questions covering 🔘Grammar,
+      🔘Vocabulary, 🔘Reading and 🎧Listening from basic to advanced levels.
+      Choose the best answer for every question.
+      <br><br>
+      ✅During the Reading section, read each passage carefully
+      before answering the questions related to it.<br>🎧During Listening, each recording has four questions. Listen to the complete recording first; the four answer choices will unlock when the audio finishes.
+    </div>
+
+    <button
+      type="button"
+      onclick="beginAssessment()"
+      style="
+        width:100%;
+        padding:15px;
+        background:#111827;
+        color:white;
+        border:none;
+        border-radius:8px;
+        font-size:18px;
+        cursor:pointer;
+      "
+    >
+      🟩🟩🟩🟩🟩🟩Begin Assessment
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       TEST
+  ========================== -->
+
+  <div id="testSection" style="display:none;">
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+      font-size:14px;
+      color:#555;
+    ">
+      <span id="questionNumber"></span>
+      <span id="skillLabel"></span>
+    </div>
+
+    <div style="
+      width:100%;
+      height:10px;
+      background:#e5e7eb;
+      border-radius:10px;
+      overflow:hidden;
+      margin-bottom:25px;
+    ">
+      <div
+        id="progressBar"
+        style="
+          width:0%;
+          height:100%;
+          background:#111827;
+          transition:width 0.3s;
+        "
+      ></div>
+    </div>
+
+
+    <!-- READING PASSAGE -->
+
+    <div
+      id="readingPassage"
+      style="
+        display:none;
+        background:#fff7ed;
+        border:1px solid #fed7aa;
+        border-radius:10px;
+        padding:22px;
+        margin-bottom:20px;
+        line-height:1.75;
+        font-size:16px;
+      "
+    ></div>
+
+
+    <!-- LISTENING PLAYER -->
+    <div id="listeningPlayer" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:18px;margin-bottom:20px;line-height:1.6;">
+      <strong id="listeningTitle">🎧 Listening Recording</strong>
+      <p id="listeningInstruction" style="margin:8px 0 12px;color:#555;">
+        Press Play and listen to the complete recording. The four answer choices will unlock when the recording finishes.
+      </p>
+
+      <iframe
+        id="soundcloudPlayer"
+        width="100%"
+        height="166"
+        scrolling="no"
+        frameborder="no"
+        allow="autoplay"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-470076292/sets/lingoleap-ltd-uk-yallaspeak&color=%23111827&auto_play=false&hide_related=true&show_comments=false&show_reposts=false&show_teaser=false"
+      ></iframe>
+
+      <div id="listeningLockMessage" style="margin-top:12px;padding:10px;background:#fff;border-radius:7px;text-align:center;font-weight:bold;">
+        🔒 Listen to the complete recording to unlock Questions 71–74.
+      </div>
+    </div>
+
+    <!-- QUESTION -->
+
+    <div
+      id="questionCard"
+      style="
+        background:#f8fafc;
+        border:1px solid #e5e7eb;
+        border-radius:10px;
+        padding:25px;
+        min-height:280px;
+      "
+    >
+
+      <div
+        id="questionText"
+        style="
+          font-size:20px;
+          font-weight:bold;
+          line-height:1.5;
+          margin-bottom:22px;
+        "
+      ></div>
+
+      <div id="optionsContainer"></div>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div style="display:flex;gap:10px;margin-top:20px;">
+
+      <button
+        id="previousButton"
+        type="button"
+        onclick="previousQuestion()"
+        style="
+          width:40%;
+          padding:14px;
+          background:#e5e7eb;
+          border:none;
+          border-radius:8px;
+          font-size:16px;
+          cursor:pointer;
+        "
+      >
+        ← Previous
+      </button>
+
+      <button
+        id="nextButton"
+        type="button"
+        onclick="nextQuestion()"
+        style="
+          width:60%;
+          padding:14px;
+          background:#111827;
+          color:white;
+          border:none;
+          border-radius:8px;
+          font-size:16px;
+          cursor:pointer;
+        "
+      >
+        Next →
+      </button>
+
+    </div>
+
+    <div
+      id="answeredStatus"
+      style="
+        text-align:center;
+        margin-top:15px;
+        color:#666;
+        font-size:14px;
+      "
+    ></div>
+
+  </div>
+
+
+  <!-- STATUS -->
+
+  
+<!-- 🎙️ FINAL SPEAKING SECTION -->
+<div id="speakingSection" style="display:none;margin-top:25px;padding:25px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;">
+  <h3 style="text-align:center;margin:0 0 8px;">🎙️ Final Section — Speaking Assessment</h3>
+  <p style="text-align:center;color:#666;margin:0 0 20px;">Speak naturally in English for approximately 30–60 seconds.</p>
+
+  <div style="background:#f5f7fa;padding:18px;border-radius:10px;line-height:1.6;font-size:20px;">
+    <strong>🛎️ Speaking Question</strong><br>
+    Please introduce yourself and tell us about your work, your interests, and something interesting you did recently.
+  </div>
+
+  <button id="recordButton" onclick="startSpeakingRecording()" style="width:100%;padding:15px;margin-top:18px;background:#dc2626;color:white;border:none;border-radius:8px;font-size:18px;cursor:pointer;">🔴 Start Speaking</button>
+  <button id="stopButton" onclick="stopSpeakingRecording()" disabled style="width:100%;padding:15px;margin-top:10px;background:#374151;color:white;border:none;border-radius:8px;font-size:20px;cursor:pointer;opacity:.5;">⏹ Stop</button>
+
+  <div style="margin-top:15px;padding:12px 15px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:14px;line-height:1.5;color:#7c2d12;">
+    <strong>Important Assessment Notice:</strong><br>
+    This assessment is designed exclusively for spoken English. Please answer entirely in English.
+    Responses given substantially in another language, or responses containing insufficient assessable English,
+    may receive the lowest provisional result or may require reassessment.
+  </div>
+
+  <div id="recordStatus" style="text-align:center;margin-top:15px;font-weight:bold;"></div>
+
+  <div id="audioSection" style="display:none;margin-top:20px;padding:18px;background:#eff6ff;border-radius:10px;text-align:center;">
+    <strong>🎧 Your Recorded Audio</strong>
+    <p style="font-size:14px;color:#666;">Play the recording to confirm that your real voice was captured.</p>
+    <audio id="audioPlayback" controls style="width:100%;margin-top:5px;"></audio>
+  </div>
+
+  <div style="margin-top:22px;">
+    <label><strong>Speech Transcript</strong></label>
+    <textarea id="speakingAnswer" rows="7" placeholder="Your speech will appear here..." style="width:100%;padding:12px;margin-top:8px;box-sizing:border-box;font-size:16px;line-height:1.5;"></textarea>
+  </div>
+
+  <button id="speakingSubmitButton" onclick="submitSpeaking()" style="width:100%;padding:15px;margin-top:20px;background:#111827;color:white;border:none;border-radius:8px;font-size:20px;cursor:pointer;">✅ Complete My Assessment</button>
+  <div id="speakingStatus" style="text-align:center;margin-top:18px;font-weight:bold;"></div>
+</div>
+
+<div
+    id="statusMessage"
+    style="
+      display:none;
+      margin-top:25px;
+      padding:18px;
+      border-radius:9px;
+      background:#f8fafc;
+      text-align:center;
+      line-height:1.6;
+    "
+  ></div>
+
+
+  <!-- RESULT -->
+
+  <div
+    id="resultBox"
+    style="
+      display:none;
+      margin-top:25px;
+      padding:25px;
+      border-radius:10px;
+      background:#f0fdf4;
+    "
+  ></div>
+
+</div>
+
+
+<style>
+
+.ll-option {
+  display:block;
+  padding:14px 16px;
+  margin:10px 0;
+  background:#ffffff;
+  border:1px solid #d1d5db;
+  border-radius:8px;
+  cursor:pointer;
+  line-height:1.5;
+  transition:0.15s;
+}
+
+.ll-option:hover {
+  background:#f1f5f9;
+}
+
+.ll-option input {
+  margin-right:10px;
+}
+
+
+/* ===== LingoLeap Mobile Compact Layout V1 ===== */
+@media (max-width: 600px) {
+  #lingoleap-test {
+    margin: 8px auto !important;
+    padding: 12px !important;
+    border-radius: 10px !important;
+  }
+  #lingoleap-test h2 {
+    font-size: 19px !important;
+    line-height: 1.25 !important;
+    margin-bottom: 5px !important;
+  }
+  #questionCard {
+    padding: 12px !important;
+    min-height: 0 !important;
+  }
+  #questionText {
+    font-size: 17px !important;
+    line-height: 1.35 !important;
+    margin-bottom: 12px !important;
+  }
+  .ll-option {
+    padding: 10px 11px !important;
+    margin: 6px 0 !important;
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+  }
+  #readingPassage {
+    padding: 13px !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+  }
+  #listeningPlayer {
+    padding: 11px !important;
+    margin-bottom: 10px !important;
+  }
+  #soundcloudPlayer {
+    height: 120px !important;
+  }
+  #optionsContainer > div {
+    margin: 9px 0 12px !important;
+    padding: 10px !important;
+  }
+  #optionsContainer > div > div:first-child {
+    font-size: 15px !important;
+    margin-bottom: 7px !important;
+  }
+  #previousButton, #nextButton {
+    padding: 11px 8px !important;
+    font-size: 14px !important;
+  }
+}
+
+</style>
+
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+<script>
+
+const PROFICIENCY_API =
+"https://script.google.com/macros/s/AKfycbzThwpc4h5zKdKULfdihN6teiDz5jlDsKw20x7ZmbcXZmbQepxwNrjzLpKAlVg-WaVR/exec"
+
+const SPEAKING_API =
+"https://script.google.com/macros/s/AKfycbwACPtMZBPl9n_Dp9IPuM_wv9KytuCtp4gIDCIaRDUTwcpE-wFiC5RIuR0u2AoaMx3TVA/exec";;
+
+
+/* ======================================================
+   READING PASSAGES
+====================================================== */
+
+const passages = {
+
+1: `
+<strong>Reading Passage 1 — A New Working Schedule</strong>
+<br><br>
+Nadia works for a logistics company in Dubai. Until recently,
+her working day started at 9:00 a.m. and finished at 6:00 p.m.
+Last month, however, the company introduced flexible working
+hours. Employees may now start between 7:30 and 9:30 in the
+morning, provided that they complete their required working hours.
+<br><br>
+Nadia prefers arriving early because the roads are quieter and
+she can finish work earlier in the afternoon. Her colleague
+Omar prefers starting later because he takes his children to
+school in the morning.
+<br><br>
+The company says the new system has improved staff satisfaction.
+However, employees must still attend important meetings at fixed
+times, even when those meetings fall outside their preferred
+schedule.
+`,
+
+2: `
+<strong>Reading Passage 2 — Responding to Customer Complaints</strong>
+<br><br>
+A regional electronics retailer noticed that customer complaints
+had increased significantly over a six-month period. Initially,
+management assumed that the main problem was product quality.
+However, an internal review showed that most complaints were
+actually related to communication after a sale.
+<br><br>
+Customers frequently reported that they did not know when damaged
+products would be replaced or how long repairs would take. In
+response, the company introduced a new system that automatically
+sends customers updates by email and text message.
+<br><br>
+Three months after the system was introduced, the total number
+of complaints had fallen by 28 percent. Management concluded that
+customers were often willing to tolerate delays when they were
+kept properly informed.
+`,
+
+3: `
+<strong>Reading Passage 3 — AI and Workplace Decision-Making</strong>
+<br><br>
+As artificial intelligence becomes more widely used in business,
+companies are increasingly relying on automated systems to support
+decisions involving recruitment, customer service and financial
+planning. Advocates argue that such systems can process far more
+information than individual employees and may identify patterns
+that humans overlook.
+<br><br>
+Nevertheless, efficiency does not necessarily guarantee sound
+judgement. An algorithm trained on incomplete or historically
+biased information may reproduce those weaknesses on a much
+larger scale. Moreover, employees may become reluctant to
+challenge an automated recommendation simply because they assume
+that a computer-generated conclusion must be objective.
+<br><br>
+For this reason, some specialists argue that AI should augment
+rather than replace professional judgement. According to this
+view, the most effective organisations will use technology to
+improve the information available to decision-makers while
+continuing to hold humans accountable for consequential choices.
+`,
+
+4: `
+<strong>Reading Passage 4 — The Productivity Paradox</strong>
+<br><br>
+Organisations frequently adopt new technologies on the assumption
+that greater efficiency at the level of individual tasks will
+translate automatically into higher organisational productivity.
+The relationship, however, is considerably less straightforward.
+A tool that enables employees to produce reports twice as quickly
+does not necessarily halve the time an organisation spends on
+reporting. Instead, managers may respond by requesting more
+reports, greater detail, or more frequent updates.
+<br><br>
+This phenomenon illustrates a broader difficulty in evaluating
+technological progress. Efficiency gains can alter expectations
+and behaviour in ways that partially consume the time initially
+saved. Communication technology provides a familiar example:
+although messages can now be delivered almost instantaneously,
+many professionals spend a substantial proportion of their day
+managing an unprecedented volume of communication.
+<br><br>
+This is not an argument against technological innovation. Rather,
+it suggests that productivity depends not merely on what a tool
+can do, but on how organisations redesign their practices around
+it. Without such redesign, technological efficiency may simply
+enable inefficient processes to operate at greater speed.
+`
+
+};
+
+
+/* ======================================================
+   QUESTIONS
+   NO CORRECT ANSWERS ARE STORED HERE
+====================================================== */
+
+const questions = [
+
+/* ==================== GRAMMAR A1 ==================== */
+
+{skill:"Grammar",q:"1. My sister ___ in Abu Dhabi.",options:["A. live","B. lives","C. living","D. is live"]},
+
+{skill:"Grammar",q:"2. We ___ English every Monday.",options:["A. studies","B. studying","C. study","D. are study"]},
+
+{skill:"Grammar",q:"3. Ahmed ___ a new car.",options:["A. have","B. has","C. having","D. is have"]},
+
+{skill:"Grammar",q:"4. ___ you work in this company?",options:["A. Do","B. Are","C. Does","D. Is"]},
+
+{skill:"Grammar",q:"5. There ___ two meeting rooms upstairs.",options:["A. is","B. has","C. be","D. are"]},
+
+
+/* ==================== GRAMMAR A2 ==================== */
+
+{skill:"Grammar",q:"6. I ___ my manager yesterday morning.",options:["A. see","B. saw","C. have see","D. seeing"]},
+
+{skill:"Grammar",q:"7. She has worked here ___ 2022.",options:["A. for","B. during","C. since","D. from"]},
+
+{skill:"Grammar",q:"8. We are going ___ a new office next month.",options:["A. to open","B. opening","C. open","D. opened"]},
+
+{skill:"Grammar",q:"9. This laptop is ___ than my old one.",options:["A. fast","B. fastest","C. more fast","D. faster"]},
+
+{skill:"Grammar",q:"10. You ___ wear a seat belt while driving.",options:["A. might","B. must","C. would","D. used"]},
+
+
+/* ==================== GRAMMAR B1 ==================== */
+
+{skill:"Grammar",q:"11. If it rains tomorrow, we ___ the event indoors.",options:["A. moved","B. would move","C. will move","D. had moved"]},
+
+{skill:"Grammar",q:"12. I have never ___ such an interesting presentation.",options:["A. saw","B. seen","C. see","D. seeing"]},
+
+{skill:"Grammar",q:"13. The documents ___ before the meeting started.",options:["A. prepare","B. have prepared","C. were preparing","D. had been prepared"]},
+
+{skill:"Grammar",q:"14. I would buy a larger apartment if I ___ enough money.",options:["A. had","B. will have","C. have","D. would have"]},
+
+{skill:"Grammar",q:"15. He asked me where I ___ the previous weekend.",options:["A. go","B. have gone","C. had gone","D. will go"]},
+
+
+/* ==================== GRAMMAR B2 ==================== */
+
+{skill:"Grammar",q:"16. By the time the manager arrived, the team ___ the problem.",options:["A. solves","B. had already solved","C. has already solving","D. already solve"]},
+
+{skill:"Grammar",q:"17. If the company ___ the warning earlier, the problem might have been avoided.",options:["A. considers","B. would consider","C. has considered","D. had considered"]},
+
+{skill:"Grammar",q:"18. The new policy is expected ___ productivity significantly.",options:["A. to improve","B. improving","C. improve","D. improved"]},
+
+{skill:"Grammar",q:"19. Not only ___ the deadline, but the team also exceeded the quality target.",options:["A. they met","B. they had met","C. did they meet","D. have they meeting"]},
+
+{skill:"Grammar",q:"20. I'd rather you ___ the matter confidential for the moment.",options:["A. keep","B. kept","C. will keep","D. keeping"]},
+
+
+/* ==================== GRAMMAR C1 ==================== */
+
+{skill:"Grammar",q:"21. Were the proposal ___ more carefully, the board might approve it.",options:["A. drafting","B. draft","C. to drafting","D. to be drafted"]},
+
+{skill:"Grammar",q:"22. The director recommended that the contract ___ before signing.",options:["A. is reviewed","B. be reviewed","C. was reviewed","D. reviewing"]},
+
+{skill:"Grammar",q:"23. Scarcely ___ the announcement when journalists began asking questions.",options:["A. they made","B. did they make","C. had they made","D. they had making"]},
+
+{skill:"Grammar",q:"24. Much as I ___ the advantages, I remain concerned about the cost.",options:["A. acknowledge","B. acknowledged","C. am acknowledging","D. would acknowledging"]},
+
+{skill:"Grammar",q:"25. The agreement is conditional upon all parties ___ the revised terms.",options:["A. accept","B. to accept","C. have accepted","D. accepting"]},
+
+
+/* ==================== GRAMMAR C2 ==================== */
+
+{skill:"Grammar",q:"26. So contentious ___ that the board postponed the vote indefinitely.",options:["A. the proposal became","B. became the proposal","C. did the proposal become","D. the proposal did becoming"]},
+
+{skill:"Grammar",q:"27. Had it not ___ the unexpected funding, the project would have been abandoned.",options:["A. being for","B. been for","C. been because","D. being because"]},
+
+{skill:"Grammar",q:"28. The consultant spoke as though she ___ the outcome from the outset.",options:["A. predicts","B. has predicted","C. would predict","D. had predicted"]},
+
+{skill:"Grammar",q:"29. Be that as it ___, the legal implications cannot simply be ignored.",options:["A. may","B. might be","C. will","D. would"]},
+
+{skill:"Grammar",q:"30. Little ___ that the apparently minor error would trigger a major investigation.",options:["A. they realised","B. had they realise","C. did they realise","D. they did realised"]},
+
+
+/* ==================== VOCABULARY A1 ==================== */
+
+{skill:"Vocabulary",q:"31. A person who teaches students is a ___.",options:["A. driver","B. teacher","C. customer","D. mechanic"]},
+
+{skill:"Vocabulary",q:"32. If something costs very little money, it is ___.",options:["A. cheap","B. heavy","C. narrow","D. noisy"]},
+
+{skill:"Vocabulary",q:"33. You normally use a ___ to call someone.",options:["A. wallet","B. key","C. plate","D. phone"]},
+
+
+/* ==================== VOCABULARY A2 ==================== */
+
+{skill:"Vocabulary",q:"34. Please ___ the form before sending it to HR.",options:["A. switch","B. borrow","C. complete","D. invite"]},
+
+{skill:"Vocabulary",q:"35. Our meeting has been ___ until Thursday.",options:["A. borrowed","B. postponed","C. repaired","D. discovered"]},
+
+{skill:"Vocabulary",q:"36. A customer who is unhappy may make a ___.",options:["A. celebration","B. suggestion room","C. salary","D. complaint"]},
+
+
+/* ==================== VOCABULARY B1 ==================== */
+
+{skill:"Vocabulary",q:"37. Employees are encouraged to ___ responsibility for their own professional development.",options:["A. take","B. make","C. put","D. bring"]},
+
+{skill:"Vocabulary",q:"38. The company plans to ___ a new service next month.",options:["A. lift","B. arise","C. launch","D. occur"]},
+
+{skill:"Vocabulary",q:"39. We need to find a practical ___ to this problem.",options:["A. behaviour","B. solution","C. occasion","D. permission"]},
+
+{skill:"Vocabulary",q:"40. The manager asked everyone to ___ the deadline.",options:["A. accomplish to","B. arrive","C. succeed","D. meet"]},
+
+
+/* ==================== VOCABULARY B2 ==================== */
+
+{skill:"Vocabulary",q:"41. The new strategy is intended to ___ the company's position in the market.",options:["A. enlarge with","B. strengthen","C. rise","D. lengthen"]},
+
+{skill:"Vocabulary",q:"42. The evidence was not sufficient to ___ his claim.",options:["A. substantiate","B. encounter","C. distribute","D. withdraw"]},
+
+{skill:"Vocabulary",q:"43. Managers must learn to ___ tasks effectively rather than trying to do everything themselves.",options:["A. derive","B. deteriorate","C. delegate","D. postpone from"]},
+
+{skill:"Vocabulary",q:"44. Consumer demand has remained relatively ___ despite the economic uncertainty.",options:["A. arbitrary","B. excessive to","C. reluctant","D. stable"]},
+
+
+/* ==================== VOCABULARY C1 ==================== */
+
+{skill:"Vocabulary",q:"45. His explanation was so ___ that even experienced analysts struggled to understand his actual position.",options:["A. transparent","B. elementary","C. ambiguous","D. literal"]},
+
+{skill:"Vocabulary",q:"46. The investigation revealed several serious ___ in the company's internal controls.",options:["A. compliments","B. deficiencies","C. conveniences","D. abundances"]},
+
+{skill:"Vocabulary",q:"47. The government introduced measures intended to ___ the impact of rising energy prices.",options:["A. exaggerate","B. initiate with","C. provoke","D. mitigate"]},
+
+
+/* ==================== VOCABULARY C2 ==================== */
+
+{skill:"Vocabulary",q:"48. His apparently generous proposal was ultimately dismissed as a ___ attempt to gain political support.",options:["A. cynical","B. literal","C. obedient","D. sequential"]},
+
+{skill:"Vocabulary",q:"49. The chairman's response was deliberately ___, leaving considerable room for interpretation.",options:["A. immutable","B. categorical","C. equivocal","D. exhaustive"]},
+
+{skill:"Vocabulary",q:"50. The report was criticised for presenting a ___ account that ignored evidence contradicting its central argument.",options:["A. meticulous","B. tendentious","C. unanimous","D. spontaneous"]},
+
+
+/* ======================================================
+   READING PASSAGE 1 — Q51–55
+====================================================== */
+
+{
+skill:"Reading",
+passage:1,
+q:"51. What change did Nadia's company introduce?",
+options:[
+"A. A shorter working week",
+"B. Flexible starting times",
+"C. Compulsory weekend work",
+"D. Remote working for all employees"
+]
+},
+
+{
+skill:"Reading",
+passage:1,
+q:"52. Why does Nadia prefer to arrive early?",
+options:[
+"A. She has meetings every morning",
+"B. Her manager requires it",
+"C. The roads are quieter and she can leave earlier",
+"D. She takes her children to school"
+]
+},
+
+{
+skill:"Reading",
+passage:1,
+q:"53. What must employees do under the new system?",
+options:[
+"A. Complete their required working hours",
+"B. Start before 8:00 every morning",
+"C. Work the same schedule as their colleagues",
+"D. Ask permission each day"
+]
+},
+
+{
+skill:"Reading",
+passage:1,
+q:"54. Why does Omar prefer a later start?",
+options:[
+"A. He lives far from the office",
+"B. He works late every evening",
+"C. He attends morning meetings online",
+"D. He takes his children to school"
+]
+},
+
+{
+skill:"Reading",
+passage:1,
+q:"55. Which statement best describes the new system?",
+options:[
+"A. Employees may ignore scheduled meetings",
+"B. Employees have flexibility, but some fixed obligations remain",
+"C. Every employee must work different hours",
+"D. The company has reduced everyone's working hours"
+]
+},
+
+
+/* ======================================================
+   READING PASSAGE 2 — Q56–60
+====================================================== */
+
+{
+skill:"Reading",
+passage:2,
+q:"56. What did management originally believe was causing most complaints?",
+options:[
+"A. High prices",
+"B. Slow delivery",
+"C. Product quality",
+"D. Staff shortages"
+]
+},
+
+{
+skill:"Reading",
+passage:2,
+q:"57. What did the internal review identify as the main problem?",
+options:[
+"A. Poor communication after the sale",
+"B. Defective products",
+"C. Insufficient advertising",
+"D. High repair costs"
+]
+},
+
+{
+skill:"Reading",
+passage:2,
+q:"58. What does the new system do?",
+options:[
+"A. Replaces damaged products immediately",
+"B. Gives customers discounts",
+"C. Allows customers to repair products themselves",
+"D. Sends customers automatic updates"
+]
+},
+
+{
+skill:"Reading",
+passage:2,
+q:"59. What happened after the new system was introduced?",
+options:[
+"A. Complaints increased slightly",
+"B. Complaints fell by 28 percent",
+"C. Repair times fell by 28 percent",
+"D. Sales increased by 28 percent"
+]
+},
+
+{
+skill:"Reading",
+passage:2,
+q:"60. What broader conclusion did management reach?",
+options:[
+"A. Customers never accept delays",
+"B. Product quality is irrelevant",
+"C. Customers may tolerate delays when kept informed",
+"D. Automated messages eliminate all complaints"
+]
+},
+
+
+/* ======================================================
+   READING PASSAGE 3 — Q61–65
+====================================================== */
+
+{
+skill:"Reading",
+passage:3,
+q:"61. According to advocates, what is one advantage of AI systems?",
+options:[
+"A. They can process large amounts of information",
+"B. They eliminate the need for professional judgement",
+"C. They always make objective decisions",
+"D. They prevent historical bias"
+]
+},
+
+{
+skill:"Reading",
+passage:3,
+q:"62. What risk is associated with algorithms trained on biased information?",
+options:[
+"A. They become too expensive to operate",
+"B. They process information too slowly",
+"C. Employees refuse to use them",
+"D. They may reproduce existing weaknesses at scale"
+]
+},
+
+{
+skill:"Reading",
+passage:3,
+q:"63. Why might employees fail to challenge an automated recommendation?",
+options:[
+"A. They are legally prohibited from doing so",
+"B. They may assume computer-generated conclusions are objective",
+"C. Automated recommendations are always correct",
+"D. They lack access to the recommendation"
+]
+},
+
+{
+skill:"Reading",
+passage:3,
+q:"64. In the passage, the word 'augment' most nearly means:",
+options:[
+"A. replace completely",
+"B. criticise publicly",
+"C. enhance or supplement",
+"D. simplify permanently"
+]
+},
+
+{
+skill:"Reading",
+passage:3,
+q:"65. Which statement best represents the writer's overall position?",
+options:[
+"A. AI is most useful when combined with accountable human judgement",
+"B. AI should replace managers in consequential decisions",
+"C. Automated decisions are inherently more objective",
+"D. Companies should avoid using AI for decision-making"
+]
+},
+
+
+/* ======================================================
+   READING PASSAGE 4 — Q66–70
+====================================================== */
+
+{
+skill:"Reading",
+passage:4,
+q:"66. What assumption about technology does the writer question?",
+options:[
+"A. New technology is expensive to introduce",
+"B. Employees resist technological change",
+"C. Digital communication increases message volume",
+"D. Faster individual tasks automatically produce greater organisational productivity"
+]
+},
+
+{
+skill:"Reading",
+passage:4,
+q:"67. Why might faster report production fail to save the organisation an equivalent amount of time?",
+options:[
+"A. Employees deliberately work more slowly",
+"B. Managers may respond by demanding more or more detailed reports",
+"C. New technology makes reports less accurate",
+"D. Organisations may stop producing reports"
+]
+},
+
+{
+skill:"Reading",
+passage:4,
+q:"68. What does the communication example illustrate?",
+options:[
+"A. Efficiency can change behaviour in ways that consume some of the time saved",
+"B. Instant communication always improves productivity",
+"C. Professionals now receive fewer messages",
+"D. Communication technology has failed technically"
+]
+},
+
+{
+skill:"Reading",
+passage:4,
+q:"69. Which inference is most consistent with the passage?",
+options:[
+"A. Technology should be rejected when it increases expectations",
+"B. Productivity can be measured solely by task completion speed",
+"C. Organisational practices influence whether technological efficiency becomes real productivity",
+"D. Efficient technology inevitably creates inefficient organisations"
+]
+},
+
+{
+skill:"Reading",
+passage:4,
+q:"70. What is the main purpose of the final sentence?",
+options:[
+"A. To argue that inefficient technology should be replaced",
+"B. To claim that speed is the best measure of productivity",
+"C. To suggest that organisations should automate every process",
+"D. To warn that technology can accelerate poor processes if working practices are not redesigned"
+]
+}
+
+,
+/* ==================== 🎧 LISTENING Q71–90 ==================== */
+{skill:"Listening",recording:1,q:"71. What should Sam check before the shop opens?",options:["A. The delivery truck","B. The price labels","C. The staff schedule","D. The customer orders"]},
+{skill:"Listening",recording:1,q:"72. What time will the delivery arrive?",options:["A. 8:00","B. 9:00","C. 10:00","D. 11:00"]},
+{skill:"Listening",recording:1,q:"73. Who should help Sam check the boxes?",options:["A. Ahmed","B. The manager","C. A customer","D. The driver"]},
+{skill:"Listening",recording:1,q:"74. Why shouldn't Sam put the products on the shelves immediately?",options:["A. The shop is closed all day.","B. The products are damaged.","C. Ahmed has to price them first.","D. The manager needs to check the delivery list."]},
+{skill:"Listening",recording:2,q:"75. Why is the customer calling?",options:["A. He received the wrong product.","B. He wants to cancel his order.","C. His order has not arrived.","D. He wants to change his address."]},
+{skill:"Listening",recording:2,q:"76. What caused the problem?",options:["A. The package was sent to the wrong distribution centre.","B. The customer gave the wrong address.","C. The product was out of stock.","D. The warehouse lost the order."]},
+{skill:"Listening",recording:2,q:"77. When is the package now expected?",options:["A. This afternoon","B. Tonight","C. Next Monday","D. Tomorrow afternoon"]},
+{skill:"Listening",recording:2,q:"78. What did the employee do in addition to checking the delivery?",options:["A. Sent another product","B. Refunded the delivery charge","C. Cancelled the order","D. Offered a discount on the next purchase"]},
+{skill:"Listening",recording:3,q:"79. What was positive about the product launch?",options:["A. Sales exceeded expectations.","B. Deliveries were faster than expected.","C. Marketing costs were reduced.","D. There were no customer complaints."]},
+{skill:"Listening",recording:3,q:"80. What does Maya identify as the underlying issue?",options:["A. Insufficient advertising","B. A shortage of products","C. Poor communication between departments","D. Inexperienced delivery staff"]},
+{skill:"Listening",recording:3,q:"81. Why is Maya hesitant about hiring more delivery staff?",options:["A. The company cannot recruit anyone.","B. Customers oppose the idea.","C. Marketing has already rejected it.","D. It would be costly and might not address the real problem."]},
+{skill:"Listening",recording:3,q:"82. What will Maya probably do next?",options:["A. Cancel the next marketing campaign.","B. Propose regular pre-campaign planning meetings.","C. Ask customers to accept longer deliveries.","D. Replace the Operations team."]},
+{skill:"Listening",recording:4,q:"83. What is one problem with the current organisational structure?",options:["A. Regional teams are unprofitable.","B. Employees have insufficient administrative work.","C. Different departments duplicate similar work.","D. Customers are moving to competitors."]},
+{skill:"Listening",recording:4,q:"84. What does the speaker particularly try to reassure employees about?",options:["A. Salaries will increase.","B. The restructuring is not primarily intended to reduce staff numbers.","C. Nobody's responsibilities will change.","D. All employees will work remotely."]},
+{skill:"Listening",recording:4,q:"85. What is the intended benefit of the new structure?",options:["A. To eliminate specialist roles","B. To reduce communication with customers","C. To increase administrative procedures","D. To allow specialists to focus more on valuable support work."]},
+{skill:"Listening",recording:4,q:"86. Which description best captures the speaker's attitude toward the transition?",options:["A. Positive about its purpose but realistic about the difficulties.","B. Completely certain that nobody will be affected.","C. Reluctant and strongly opposed to the change.","D. Indifferent to employee concerns."]},
+{skill:"Listening",recording:5,q:"87. What apparent contradiction does Elena identify?",options:["A. New technology is becoming less sophisticated.","B. Employees dislike tools that make their jobs easier.","C. Time-saving technology can ultimately leave employees feeling busier.","D. Managers increasingly reject automation."]},
+{skill:"Listening",recording:5,q:"88. How does Marcus initially respond to Elena's argument?",options:["A. He distinguishes technological efficiency from how management uses it.","B. He argues that productivity technology never saves time.","C. He completely agrees without qualification.","D. He believes employees should produce fewer reports."]},
+{skill:"Listening",recording:5,q:"89. What does Elena mean by saying productivity depends on what organisations do with the capacity technology creates?",options:["A. Organisations should immediately reduce their workforce.","B. Productivity depends mainly on purchasing more advanced software.","C. Saved time has no economic value.","D. Efficiency gains matter only if organisations use the freed resources intelligently."]},
+{skill:"Listening",recording:5,q:"90. What is implied by Elena's final sentence?",options:["A. Sophisticated technology inevitably produces useful work.","B. Automation should be avoided in professional organisations.","C. Improving the efficiency of an unnecessary activity does not make that activity valuable.","D. Employees should decide which organisational tasks are necessary."]}
+
+];
+
+
+/* ======================================================
+   LINGOLEAP ASSESSMENT ENGINE — V3.2 STABLE
+   - Mobile-safe navigation
+   - Autosave / resume
+   - Per-track SoundCloud completion detection
+   - Viewport-stable Reading navigation
+   - Complete speaking section
+====================================================== */
+
+const LL_STORAGE_KEY = "lingoleap_assessment_v3_draft";
+const STRIPE_PAYMENT_LINK_BASE =
+  "https://buy.stripe.com/test_00w7sL7SSgJyc416Pn4wM01";
+
+let currentQuestion = 0;
+let candidateAnswers = new Array(questions.length).fill(null);
+
+let listeningCompleted = [false, false, false, false, false];
+let activeListeningRecording = null;
+let soundcloudWidget = null;
+let soundcloudReady = false;
+let soundcloudEventsBound = false;
+let soundcloudReadyPromise = null;
+
+function safeText(value) {
+  return String(value === null || value === undefined ? "" : value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function saveProgress() {
+  try {
+    const draft = {
+      version: 3,
+      currentQuestion: currentQuestion,
+      answers: candidateAnswers,
+      listeningCompleted: listeningCompleted,
+      candidate: {
+        name: document.getElementById("candidateName").value.trim(),
+        email: document.getElementById("candidateEmail").value.trim(),
+        company: document.getElementById("company").value.trim(),
+        department: document.getElementById("department").value.trim()
+      },
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(LL_STORAGE_KEY, JSON.stringify(draft));
+  } catch (error) {
+    console.warn("Progress could not be saved:", error);
+  }
+}
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(LL_STORAGE_KEY);
+    if (!raw) return;
+
+    const draft = JSON.parse(raw);
+    if (!draft || draft.version !== 3) return;
+
+    if (draft.candidate) {
+      document.getElementById("candidateName").value = draft.candidate.name || "";
+      document.getElementById("candidateEmail").value = draft.candidate.email || "";
+      document.getElementById("company").value = draft.candidate.company || "";
+      document.getElementById("department").value = draft.candidate.department || "";
+    }
+
+    if (Array.isArray(draft.answers) && draft.answers.length === questions.length) {
+      candidateAnswers = draft.answers;
+    }
+
+    if (Array.isArray(draft.listeningCompleted) && draft.listeningCompleted.length === 5) {
+      listeningCompleted = draft.listeningCompleted.map(Boolean);
+    }
+
+    if (Number.isInteger(draft.currentQuestion) &&
+        draft.currentQuestion >= 0 &&
+        draft.currentQuestion < questions.length) {
+      currentQuestion = draft.currentQuestion;
+    }
+
+    const hasProgress = candidateAnswers.some(function(a){ return a !== null; }) || currentQuestion > 0;
+    if (hasProgress) {
+      const beginButton = document.querySelector('#candidateSection button[onclick="beginAssessment()"]');
+      if (beginButton) beginButton.innerText = "▶ Resume Assessment";
+    }
+  } catch (error) {
+    console.warn("Saved progress could not be restored:", error);
+  }
+}
+
+function clearProgress() {
+  try { localStorage.removeItem(LL_STORAGE_KEY); } catch (error) {}
+}
+
+function beginAssessment() {
+  const name = document.getElementById("candidateName").value.trim();
+  const email = document.getElementById("candidateEmail").value.trim();
+
+  if (!name) {
+    alert("Please enter your full name.");
+    return;
+  }
+  if (!email) {
+    alert("Please enter your email address.");
+    return;
+  }
+
+  document.getElementById("candidateSection").style.display = "none";
+  document.getElementById("testSection").style.display = "block";
+
+  saveProgress();
+  renderQuestion();
+
+  // One intentional jump only when the assessment starts/resumes.
+  document.getElementById("testSection").scrollIntoView({behavior:"auto",block:"start"});
+}
+
+function renderQuestionPreservingViewport() {
+  const x = window.scrollX || 0;
+  const y = window.scrollY || 0;
+  renderQuestion();
+
+  // Rebuilding a Reading passage changes DOM height above the answer card.
+  // Restore the candidate's exact viewport so answering/navigation never throws them upward.
+  requestAnimationFrame(function() {
+    window.scrollTo(x, y);
+    requestAnimationFrame(function() { window.scrollTo(x, y); });
+  });
+}
+
+function renderQuestion() {
+  const item = questions[currentQuestion];
+
+  document.getElementById("questionNumber").innerText =
+    item.skill === "Listening"
+      ? "Questions " + (71 + (item.recording - 1) * 4) + "–" +
+        (74 + (item.recording - 1) * 4) + " of 90"
+      : "Question " + (currentQuestion + 1) + " of " + questions.length;
+
+  document.getElementById("skillLabel").innerText =
+    item.skill === "Listening" ? "🎧 Listening" : item.skill;
+
+  document.getElementById("progressBar").style.width =
+    (((currentQuestion + 1) / questions.length) * 100) + "%";
+
+  const readingBox = document.getElementById("readingPassage");
+  const listeningBox = document.getElementById("listeningPlayer");
+
+  if (item.skill === "Listening" && item.recording) {
+    readingBox.style.display = "none";
+    readingBox.innerHTML = "";
+
+    const recording = item.recording;
+    const blockStart = 70 + (recording - 1) * 4;
+
+    // Always anchor a listening screen to the first question in its 4-question block.
+    currentQuestion = blockStart;
+
+    document.getElementById("questionNumber").innerText =
+      "Questions " + (blockStart + 1) + "–" + (blockStart + 4) + " of 90";
+
+    document.getElementById("listeningTitle").innerText =
+      "🎧 Recording " + recording + " — Questions " +
+      (blockStart + 1) + "–" + (blockStart + 4);
+
+    document.getElementById("listeningInstruction").innerText =
+      "Press Play and listen to this recording. When it finishes, all four questions will unlock.";
+
+    listeningBox.style.display = "block";
+
+    const lockMessage = document.getElementById("listeningLockMessage");
+    lockMessage.innerHTML = listeningCompleted[recording - 1]
+      ? "✅ Recording completed. Please answer all four questions."
+      : "🔒 Listen to the complete recording to unlock Questions " +
+        (blockStart + 1) + "–" + (blockStart + 4) + ".";
+
+    renderListeningBlock(recording, blockStart);
+    prepareSoundCloudRecording(recording);
+
+    const previousButton = document.getElementById("previousButton");
+    previousButton.disabled = recording === 1;
+    previousButton.style.opacity = recording === 1 ? "0.5" : "1";
+
+    const nextButton = document.getElementById("nextButton");
+    nextButton.innerText =
+      recording === 5
+        ? "Continue to Speaking →"
+        : "Continue to Recording " + (recording + 1) + " →";
+
+    updateAnsweredStatus();
+    saveProgress();
+    return;
+  }
+
+  listeningBox.style.display = "none";
+  stopListeningAudio();
+
+  if (item.skill === "Reading" && item.passage && passages[item.passage]) {
+    readingBox.innerHTML = passages[item.passage];
+    readingBox.style.display = "block";
+  } else {
+    readingBox.style.display = "none";
+    readingBox.innerHTML = "";
+  }
+
+  document.getElementById("questionText").innerText = item.q;
+
+  const optionsContainer = document.getElementById("optionsContainer");
+  optionsContainer.innerHTML = "";
+  const letters = ["A","B","C","D"];
+
+  item.options.forEach(function(option,index) {
+    const label = document.createElement("label");
+    label.className = "ll-option";
+
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "currentQuestion";
+    radio.value = letters[index];
+
+    if (candidateAnswers[currentQuestion] === letters[index]) {
+      radio.checked = true;
+    }
+
+    radio.addEventListener("change", function() {
+      candidateAnswers[currentQuestion] = this.value;
+      updateAnsweredStatus();
+      saveProgress();
+    });
+
+    label.appendChild(radio);
+    label.appendChild(document.createTextNode(option));
+    optionsContainer.appendChild(label);
+  });
+
+  const previousButton = document.getElementById("previousButton");
+  previousButton.disabled = currentQuestion === 0;
+  previousButton.style.opacity = currentQuestion === 0 ? "0.5" : "1";
+
+  const nextButton = document.getElementById("nextButton");
+  nextButton.innerText = currentQuestion === 69 ? "Continue to Listening →" : "Next →";
+
+  updateAnsweredStatus();
+  saveProgress();
+}
+
+function renderListeningBlock(recording, blockStart) {
+  document.getElementById("questionText").innerHTML =
+    "🎧 Answer all four questions for Recording " + recording + ".";
+
+  const optionsContainer = document.getElementById("optionsContainer");
+  optionsContainer.innerHTML = "";
+
+  const letters = ["A","B","C","D"];
+  const unlocked = listeningCompleted[recording - 1];
+
+  for (let offset = 0; offset < 4; offset++) {
+    const questionIndex = blockStart + offset;
+    const q = questions[questionIndex];
+
+    const qWrap = document.createElement("div");
+    qWrap.style.cssText =
+      "margin:14px 0 18px;padding:14px;background:#fff;border:1px solid #e5e7eb;border-radius:9px;";
+
+    const qText = document.createElement("div");
+    qText.style.cssText =
+      "font-weight:bold;font-size:17px;line-height:1.45;margin-bottom:10px;";
+    qText.innerText = q.q;
+    qWrap.appendChild(qText);
+
+    q.options.forEach(function(option,index) {
+      const label = document.createElement("label");
+      label.className = "ll-option";
+
+      if (!unlocked) {
+        label.style.opacity = "0.55";
+        label.style.cursor = "not-allowed";
+      }
+
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "listeningQuestion" + questionIndex;
+      radio.value = letters[index];
+      radio.disabled = !unlocked;
+
+      if (candidateAnswers[questionIndex] === letters[index]) {
+        radio.checked = true;
+      }
+
+      radio.addEventListener("change", function() {
+        candidateAnswers[questionIndex] = this.value;
+        updateAnsweredStatus();
+        saveProgress();
+      });
+
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(option));
+      qWrap.appendChild(label);
+    });
+
+    optionsContainer.appendChild(qWrap);
+  }
+}
+
+/* ======================================================
+   ROBUST SOUNDCLOUD CONTROL
+====================================================== */
+
+function unlockListeningRecording(recording) {
+  if (!recording || listeningCompleted[recording - 1]) return;
+
+  listeningCompleted[recording - 1] = true;
+  saveProgress();
+
+  const lockMessage = document.getElementById("listeningLockMessage");
+  if (lockMessage) {
+    lockMessage.innerHTML = "✅ Recording completed. Please answer all four questions.";
+  }
+
+  // Rebuild only the four listening questions; do not navigate or scroll.
+  renderListeningBlock(recording, 70 + (recording - 1) * 4);
+}
+
+function ensureSoundCloudWidget() {
+  if (soundcloudReadyPromise) return soundcloudReadyPromise;
+
+  soundcloudReadyPromise = new Promise(function(resolve, reject) {
+    let attempts = 0;
+
+    function initialise() {
+      attempts++;
+
+      if (window.SC && SC.Widget) {
+        try {
+          const iframe = document.getElementById("soundcloudPlayer");
+          if (!soundcloudWidget) soundcloudWidget = SC.Widget(iframe);
+
+          if (!soundcloudEventsBound) {
+            soundcloudEventsBound = true;
+
+            soundcloudWidget.bind(SC.Widget.Events.READY, function() {
+              soundcloudReady = true;
+              resolve(soundcloudWidget);
+            });
+
+            soundcloudWidget.bind(SC.Widget.Events.FINISH, function() {
+              if (!activeListeningRecording) return;
+
+              const finishedRecording = activeListeningRecording;
+              unlockListeningRecording(finishedRecording);
+
+              // Stop SoundCloud from continuing through the playlist.
+              try {
+                soundcloudWidget.pause();
+                soundcloudWidget.skip(finishedRecording - 1);
+                soundcloudWidget.seekTo(0);
+                soundcloudWidget.pause();
+              } catch (error) {
+                console.warn("SoundCloud finish reset:", error);
+              }
+
+            });
+
+            // SoundCloud playlists do not reliably emit FINISH for every individual track.
+            // PLAY_PROGRESS is therefore the primary per-recording completion detector.
+            soundcloudWidget.bind(SC.Widget.Events.PLAY_PROGRESS, function(event) {
+              if (!activeListeningRecording || !event) return;
+
+              const relative = Number(event.relativePosition);
+              const position = Number(event.currentPosition);
+              const duration = Number(event.duration);
+              const effectivelyFinished =
+                (Number.isFinite(relative) && relative >= 0.985) ||
+                (Number.isFinite(position) && Number.isFinite(duration) &&
+                 duration > 0 && position >= duration - 750);
+
+              if (!effectivelyFinished) return;
+
+              const recording = activeListeningRecording;
+              soundcloudWidget.getCurrentSoundIndex(function(index) {
+                if (index !== recording - 1) return;
+                unlockListeningRecording(recording);
+
+                // Keep the playlist parked on the recording just completed.
+                try { soundcloudWidget.pause(); } catch (error) {}
+              });
+            });
+
+            // If the playlist tries to move to another recording by itself,
+            // immediately stop it. The candidate controls progression.
+            soundcloudWidget.bind(SC.Widget.Events.PLAY, function() {
+              if (!activeListeningRecording) return;
+              soundcloudWidget.getCurrentSoundIndex(function(index) {
+                const expected = activeListeningRecording - 1;
+                if (index !== expected) {
+                  try {
+                    soundcloudWidget.pause();
+                    soundcloudWidget.skip(expected);
+                    soundcloudWidget.seekTo(0);
+                    soundcloudWidget.pause();
+                  } catch (error) {
+                    console.warn("SoundCloud auto-advance prevented:", error);
+                  }
+                }
+              });
+            });
+          }
+
+          // Some browsers may have fired READY before binding.
+          setTimeout(function() {
+            if (!soundcloudReady) {
+              try {
+                soundcloudWidget.getCurrentSoundIndex(function() {
+                  soundcloudReady = true;
+                  resolve(soundcloudWidget);
+                });
+              } catch (error) {}
+            }
+          }, 500);
+
+          return;
+        } catch (error) {
+          console.warn("SoundCloud init retry:", error);
+        }
+      }
+
+      if (attempts < 40) {
+        setTimeout(initialise, 250);
+      } else {
+        reject(new Error("SoundCloud player could not be initialized."));
+      }
+    }
+
+    initialise();
+  });
+
+  return soundcloudReadyPromise;
+}
+
+async function prepareSoundCloudRecording(recording) {
+  activeListeningRecording = recording;
+
+  try {
+    const widget = await ensureSoundCloudWidget();
+
+    // The user may have navigated while the player was becoming ready.
+    if (activeListeningRecording !== recording) return;
+
+    widget.pause();
+    widget.skip(recording - 1);
+    widget.seekTo(0);
+    widget.pause();
+  } catch (error) {
+    console.error(error);
+    document.getElementById("listeningLockMessage").innerHTML =
+      "⚠️ The listening player did not load correctly. Please refresh the page; your progress is saved.";
+  }
+}
+
+function stopListeningAudio() {
+  if (soundcloudWidget) {
+    try { soundcloudWidget.pause(); } catch (error) {}
+  }
+  activeListeningRecording = null;
+}
+
+function updateAnsweredStatus() {
+  const answered = candidateAnswers.filter(function(answer) {
+    return answer !== null;
+  }).length;
+
+  document.getElementById("answeredStatus").innerText =
+    answered + " of " + questions.length + " questions answered";
+}
+
+function nextQuestion() {
+  const item = questions[currentQuestion];
+
+  if (item.skill === "Listening" && item.recording) {
+    const recording = item.recording;
+    const blockStart = 70 + (recording - 1) * 4;
+
+    if (!listeningCompleted[recording - 1]) {
+      alert("Please listen to the complete recording before answering.");
+      return;
+    }
+
+    for (let i = blockStart; i < blockStart + 4; i++) {
+      if (!candidateAnswers[i]) {
+        alert("Please answer Question " + (i + 1) + " before continuing.");
+        return;
+      }
+    }
+
+    stopListeningAudio();
+
+    if (recording < 5) {
+      currentQuestion = blockStart + 4;
+      saveProgress();
+      renderQuestionPreservingViewport();
+    } else {
+      submitAssessment();
+    }
+    return;
+  }
+
+  if (!candidateAnswers[currentQuestion]) {
+    alert("Please choose an answer before continuing.");
+    return;
+  }
+
+  if (currentQuestion < questions.length - 1) {
+    currentQuestion++;
+    saveProgress();
+    renderQuestionPreservingViewport();
+  } else {
+    submitAssessment();
+  }
+}
+
+function previousQuestion() {
+  const item = questions[currentQuestion];
+
+  if (item.skill === "Listening" && item.recording) {
+    if (item.recording > 1) {
+      stopListeningAudio();
+      currentQuestion = 70 + (item.recording - 2) * 4;
+      saveProgress();
+      renderQuestionPreservingViewport();
+    }
+    return;
+  }
+
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    saveProgress();
+    renderQuestionPreservingViewport();
+  }
+}
+
+// Kept for compatibility, but deliberately avoids forced smooth scrolling.
+function scrollToTest() {}
+
+async function submitAssessment() {
+  const unanswered = candidateAnswers.findIndex(function(answer) {
+    return answer === null;
+  });
+
+  if (unanswered !== -1) {
+    alert("Question " + (unanswered + 1) + " has not been answered.");
+    currentQuestion = unanswered;
+    saveProgress();
+    renderQuestion();
+    return;
+  }
+
+  const name = document.getElementById("candidateName").value.trim();
+  const email = document.getElementById("candidateEmail").value.trim();
+  const company = document.getElementById("company").value.trim();
+  const department = document.getElementById("department").value.trim();
+
+  document.getElementById("testSection").style.display = "none";
+
+  const status = document.getElementById("statusMessage");
+  status.style.display = "block";
+  status.innerHTML = "⏳ Your assessment is being scored securely. Please wait...";
+
+  try {
+    const response = await fetch(PROFICIENCY_API, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({
+        name:name,
+        email:email,
+        company:company,
+        department:department,
+        answers:candidateAnswers
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || "Assessment failed.");
+    }
+
+    status.style.display = "none";
+    window.lingoleapWrittenResult = data;
+    showSpeakingSection();
+
+  } catch(error) {
+    console.error(error);
+    status.innerHTML =
+      "<strong>Submission problem</strong><br><br>" +
+      "Your answers could not be processed.<br><br><small>" +
+      safeText(error.message) +
+      "</small><br><br>Your progress is still saved on this device.";
+
+    // Allow the candidate to return without losing the completed answers.
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.innerText = "Return to Assessment";
+    retry.style.cssText =
+      "margin-top:16px;padding:12px 18px;border:0;border-radius:8px;background:#111827;color:#fff;cursor:pointer;";
+    retry.onclick = function() {
+      status.style.display = "none";
+      document.getElementById("testSection").style.display = "block";
+      renderQuestion();
+    };
+    status.appendChild(document.createElement("br"));
+    status.appendChild(retry);
+  }
+}
+
+/* ======================================================
+   SPEAKING — COMPLETE
+====================================================== */
+
+let speakingRecognition = null;
+let speakingFinalTranscript = "";
+let speakingIsRecording = false;
+let speakingMediaRecorder = null;
+let speakingAudioChunks = [];
+let speakingAudioBlob = null;
+let speakingMicrophoneStream = null;
+
+function showSpeakingSection() {
+  document.getElementById("testSection").style.display = "none";
+  const section = document.getElementById("speakingSection");
+  section.style.display = "block";
+  section.scrollIntoView({behavior:"auto",block:"start"});
+}
+
+async function startSpeakingRecording() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("Audio recording is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
+    return;
+  }
+
+  try {
+    speakingMicrophoneStream =
+      await navigator.mediaDevices.getUserMedia({audio:true});
+
+    speakingAudioChunks = [];
+    speakingAudioBlob = null;
+    speakingMediaRecorder = new MediaRecorder(speakingMicrophoneStream);
+
+    speakingMediaRecorder.ondataavailable = function(event) {
+      if (event.data.size > 0) speakingAudioChunks.push(event.data);
+    };
+
+    speakingMediaRecorder.onstop = function() {
+      speakingAudioBlob = new Blob(
+        speakingAudioChunks,
+        {type:speakingMediaRecorder.mimeType || "audio/webm"}
+      );
+
+      const audioURL = URL.createObjectURL(speakingAudioBlob);
+      document.getElementById("audioPlayback").src = audioURL;
+      document.getElementById("audioSection").style.display = "block";
+
+      const sizeKB = Math.round(speakingAudioBlob.size / 1024);
+      document.getElementById("recordStatus").innerHTML =
+        "✅ Real audio captured successfully — " + sizeKB + " KB";
+    };
+
+    speakingMediaRecorder.start();
+    speakingFinalTranscript = "";
+    document.getElementById("speakingAnswer").value = "";
+
+    if (SpeechRecognition) {
+      speakingRecognition = new SpeechRecognition();
+      speakingRecognition.lang = "en-US";
+      speakingRecognition.continuous = true;
+      speakingRecognition.interimResults = true;
+
+      speakingRecognition.onresult = function(event) {
+        let interimTranscript = "";
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            speakingFinalTranscript += transcript + " ";
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        document.getElementById("speakingAnswer").value =
+          speakingFinalTranscript + interimTranscript;
+      };
+
+      speakingRecognition.onerror = function(event) {
+        console.log("Speech recognition:", event.error);
+      };
+
+      speakingRecognition.onend = function() {
+        if (speakingIsRecording) {
+          try { speakingRecognition.start(); } catch(error) {}
+        }
+      };
+
+      try { speakingRecognition.start(); } catch(error) {}
+    }
+
+    speakingIsRecording = true;
+    document.getElementById("recordStatus").innerHTML =
+      "🔴 Recording real audio... Speak naturally.";
+
+    const recordButton = document.getElementById("recordButton");
+    const stopButton = document.getElementById("stopButton");
+
+    recordButton.disabled = true;
+    recordButton.style.opacity = ".5";
+    stopButton.disabled = false;
+    stopButton.style.opacity = "1";
+    document.getElementById("audioSection").style.display = "none";
+
+  } catch(error) {
+    console.error(error);
+    document.getElementById("recordStatus").innerHTML =
+      "❌ Microphone access failed.";
+    alert("Please allow microphone access and try again.");
+  }
+}
+
+function stopSpeakingRecording() {
+  speakingIsRecording = false;
+
+  if (speakingRecognition) {
+    try { speakingRecognition.stop(); } catch(error) {}
+  }
+
+  if (speakingMediaRecorder &&
+      speakingMediaRecorder.state !== "inactive") {
+    speakingMediaRecorder.stop();
+  }
+
+  if (speakingMicrophoneStream) {
+    speakingMicrophoneStream.getTracks().forEach(function(track) {
+      track.stop();
+    });
+  }
+
+  const recordButton = document.getElementById("recordButton");
+  const stopButton = document.getElementById("stopButton");
+
+  recordButton.disabled = false;
+  recordButton.style.opacity = "1";
+  stopButton.disabled = true;
+  stopButton.style.opacity = ".5";
+  document.getElementById("recordStatus").innerHTML =
+    "⏳ Preparing your audio...";
+}
+
+async function submitSpeaking() {
+  const answer = document.getElementById("speakingAnswer").value.trim();
+  const status = document.getElementById("speakingStatus");
+  const button = document.getElementById("speakingSubmitButton");
+
+  if (speakingIsRecording) {
+    alert("Please stop the recording first.");
+    return;
+  }
+
+  if (!speakingAudioBlob) {
+    alert("Please record your speaking answer first.");
+    return;
+  }
+
+  if (!answer) {
+    alert("We could not obtain enough speech for assessment. Please record again.");
+    return;
+  }
+
+  status.innerHTML = "⏳ Assessing your English...";
+  button.disabled = true;
+  button.innerHTML = "Assessing...";
+
+  try {
+    const response = await fetch(SPEAKING_API, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({
+        name:document.getElementById("candidateName").value.trim(),
+        email:document.getElementById("candidateEmail").value.trim(),
+        company:document.getElementById("company").value.trim(),
+        department:document.getElementById("department").value.trim(),
+        answer:answer
+      })
+    });
+
+    const speakingData = await response.json();
+
+    if (!speakingData.success) {
+      throw new Error(speakingData.error || "Speaking assessment failed.");
+    }
+
+    window.lingoleapSpeakingResult = speakingData;
+    status.innerHTML = "";
+    showCombinedResult(window.lingoleapWrittenResult || {}, speakingData);
+
+  } catch(error) {
+    console.error(error);
+    status.innerHTML =
+      "❌ Something went wrong. Your written progress is still saved. Please try again.";
+  } finally {
+    button.disabled = false;
+    button.innerHTML = "✅ Complete My Assessment";
+  }
+}
+
+function createFallbackAssessmentId() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2,"0");
+  const d = String(now.getDate()).padStart(2,"0");
+  const random = Math.random().toString(36).slice(2,8).toUpperCase();
+  return "LLA-" + y + m + d + "-" + random;
+}
+
+function buildStripePaymentUrl(assessmentId) {
+  return STRIPE_PAYMENT_LINK_BASE +
+    "?client_reference_id=" +
+    encodeURIComponent(assessmentId);
+}
+
+function showCombinedResult(written, speaking) {
+  document.getElementById("speakingSection").style.display = "none";
+
+  const resultBox = document.getElementById("resultBox");
+
+  const cefrValue = {A1:1,A2:2,B1:3,B2:4,C1:5,C2:6};
+  const cefrNames = {
+    A1:"Beginner",
+    A2:"Elementary",
+    B1:"Intermediate",
+    B2:"Upper-Intermediate",
+    C1:"Advanced",
+    C2:"Proficient"
+  };
+
+  const writtenLevel = String(written.level || "A1").toUpperCase();
+  const speakingLevel = String(speaking.level || "A1").toUpperCase();
+
+  const writtenValue = cefrValue[writtenLevel] || 1;
+  const speakingValue = cefrValue[speakingLevel] || 1;
+  const finalValue = (writtenValue * 0.90) + (speakingValue * 0.10);
+
+  let finalLevel = "A1";
+  if (finalValue >= 5.5) finalLevel = "C2";
+  else if (finalValue >= 4.5) finalLevel = "C1";
+  else if (finalValue >= 3.5) finalLevel = "B2";
+  else if (finalValue >= 2.5) finalLevel = "B1";
+  else if (finalValue >= 1.5) finalLevel = "A2";
+
+  const candidateName =
+    document.getElementById("candidateName").value.trim() || "Candidate";
+
+  // Prefer the Assessment ID returned by the scoring backend.
+  // A fallback is shown only if the backend did not return one.
+  const assessmentId =
+    written.assessmentId ||
+    written.assessment_id ||
+    speaking.assessmentId ||
+    speaking.assessment_id ||
+    createFallbackAssessmentId();
+
+  window.lingoleapFinalResult = {
+    assessmentId:assessmentId,
+    name:candidateName,
+    email:document.getElementById("candidateEmail").value.trim(),
+    company:document.getElementById("company").value.trim(),
+    department:document.getElementById("department").value.trim(),
+    finalLevel:finalLevel,
+    finalLevelName:cefrNames[finalLevel],
+    writtenLevel:writtenLevel,
+    speakingLevel:speakingLevel,
+    grammarPercentage:written.grammarPercentage || 0,
+    vocabularyPercentage:written.vocabularyPercentage || 0,
+    readingPercentage:written.readingPercentage || 0,
+    listeningPercentage:written.listeningPercentage || 0,
+    totalCorrect:written.totalCorrect || 0,
+    totalQuestions:written.totalQuestions || 90,
+    overallPercentage:written.overallPercentage || 0,
+    speakingFeedback:speaking.feedback || "",
+    recommendation:written.recommendation || ""
+  };
+
+  resultBox.innerHTML = `
+    <div style="text-align:center;">
+      <div style="font-size:30px;font-weight:bold;margin-bottom:8px;">
+        Congratulations, ${safeText(candidateName)}! 🎉
+      </div>
+      <div style="font-size:16px;color:#555;">
+        Your estimated English proficiency level is
+      </div>
+      <div style="font-size:58px;font-weight:bold;margin:8px 0 0;">
+        ${safeText(finalLevel)}
+      </div>
+      <div style="font-size:22px;font-weight:bold;margin-bottom:12px;">
+        ${safeText(cefrNames[finalLevel])}
+      </div>
+      <div style="font-size:15px;color:#666;">
+        LingoLeap 5-Skill English Proficiency Assessment
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:9px;padding:18px;margin-top:22px;">
+      <strong>📊 Your Skill Profile</strong>
+      <div style="margin-top:15px;line-height:2;">
+        ⚜️ Grammar: <strong>${safeText(written.grammarPercentage || 0)}%</strong><br>
+        ⚜️ Vocabulary: <strong>${safeText(written.vocabularyPercentage || 0)}%</strong><br>
+        📖 Reading: <strong>${safeText(written.readingPercentage || 0)}%</strong><br>
+        🎧 Listening: <strong>${safeText(written.listeningPercentage || 0)}%</strong><br>
+        🎙️ Speaking: <strong>${safeText(speakingLevel)}</strong>
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:9px;padding:18px;margin-top:15px;line-height:1.6;">
+      <strong>🎙️ Speaking Feedback</strong><br><br>
+      ${safeText(speaking.feedback || "")}
+    </div>
+
+    <div style="background:white;border-radius:9px;padding:18px;margin-top:15px;line-height:1.6;">
+      <strong>🎯 Training Recommendation</strong><br><br>
+      ${safeText(written.recommendation || "")}
+    </div>
+
+    <div style="margin-top:22px;padding:22px;border:1px solid #d6b56b;border-radius:12px;background:#fffaf0;">
+      <div style="text-align:center;">
+        <div style="font-size:22px;font-weight:bold;color:#111827;">
+          📜 Unlock Your Personalized Assessment Certificate
+        </div>
+        <div style="font-size:14px;color:#555;margin-top:8px;line-height:1.6;">
+          Turn your completed assessment into a professional LINGOLEAP LTD record.
+        </div>
+      </div>
+
+      <div style="margin:18px auto 0;max-width:520px;line-height:2;font-size:15px;">
+        ✅ Personalized digital assessment certificate<br>
+        ✅ Five-skill proficiency profile<br>
+        ✅ Unique Certificate ID<br>
+        ✅ Online certificate-verification record<br>
+        ✅ QR verification
+      </div>
+
+      <div style="margin-top:18px;padding:12px;background:#ffffff;border-radius:8px;text-align:center;font-size:14px;color:#555;">
+        Assessment ID:
+        <strong style="color:#111827;">${safeText(assessmentId)}</strong>
+      </div>
+
+      <button id="commercialCertificateButton" type="button" style="
+        width:100%;padding:16px;margin-top:16px;background:#111827;color:white;
+        border:none;border-radius:8px;font-size:19px;font-weight:bold;cursor:pointer;">
+        💳 Get My Certificate & Verified Skills Report
+      </button>
+
+      <div style="text-align:center;margin-top:10px;font-size:12px;color:#8a5b17;">
+        TEST MODE — Stripe Sandbox. No real payment will be processed.
+      </div>
+    </div>
+
+    <p style="font-size:13px;color:#666;line-height:1.5;text-align:center;margin-top:20px;">
+      Your displayed result is a preliminary CEFR placement estimate.
+      Any paid certificate records performance on the LingoLeap English Proficiency Assessment
+      and is issued by LINGOLEAP LTD. It does not represent third-party accreditation
+      or a government-regulated language qualification.
+    </p>
+  `;
+
+  resultBox.style.display = "block";
+
+  const commercialButton =
+    document.getElementById("commercialCertificateButton");
+
+  if (commercialButton) {
+    commercialButton.addEventListener("click", function() {
+      saveProgress();
+      window.location.href = buildStripePaymentUrl(assessmentId);
+    });
+  }
+
+  // Assessment itself is complete; keep no stale question draft.
+  clearProgress();
+  resultBox.scrollIntoView({behavior:"auto",block:"start"});
+}
+
+/* GoDaddy HTML blocks can execute inline JavaScript in an isolated scope.
+   Explicitly expose button handlers on window so inline onclick attributes always resolve. */
+window.beginAssessment = beginAssessment;
+window.nextQuestion = nextQuestion;
+window.previousQuestion = previousQuestion;
+window.startSpeakingRecording = startSpeakingRecording;
+window.stopSpeakingRecording = stopSpeakingRecording;
+window.submitSpeaking = submitSpeaking;
+
+/* Restore candidate details and any interrupted assessment after page load. */
+loadProgress();
+
+</script>
