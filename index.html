@@ -1718,41 +1718,71 @@ async function submitSpeaking() {
     return;
   }
 
-  status.innerHTML = "⏳ Assessing your English...";
   button.disabled = true;
   button.innerHTML = "Assessing...";
 
-  try {
-    const response = await fetch(SPEAKING_API, {
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({
-        name:document.getElementById("candidateName").value.trim(),
-        email:document.getElementById("candidateEmail").value.trim(),
-        company:document.getElementById("company").value.trim(),
-        department:document.getElementById("department").value.trim(),
-        answer:answer
-      })
-    });
+  const payload = {
+    name: document.getElementById("candidateName").value.trim(),
+    email: document.getElementById("candidateEmail").value.trim(),
+    company: document.getElementById("company").value.trim(),
+    department: document.getElementById("department").value.trim(),
+    answer: answer
+  };
 
-    const speakingData = await response.json();
+  const maxAttempts = 3;
+  let lastError = null;
 
-    if (!speakingData.success) {
-      throw new Error(speakingData.error || "Speaking assessment failed.");
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    status.innerHTML = attempt === 1
+      ? "⏳ Analyzing your English… Please wait a few seconds."
+      : "⏳ Your assessment is still being processed securely… Please wait.";
+
+    try {
+      const response = await fetch(SPEAKING_API, {
+        method: "POST",
+        headers: {"Content-Type": "text/plain;charset=utf-8"},
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error("Assessment service returned HTTP " + response.status);
+      }
+
+      const speakingData = await response.json();
+
+      if (!speakingData || !speakingData.success) {
+        throw new Error(
+          speakingData && speakingData.error
+            ? speakingData.error
+            : "Speaking assessment is still processing."
+        );
+      }
+
+      window.lingoleapSpeakingResult = speakingData;
+      status.innerHTML = "✅ Assessment completed successfully.";
+      showCombinedResult(window.lingoleapWrittenResult || {}, speakingData);
+      return;
+
+    } catch (error) {
+      console.warn("Speaking assessment attempt " + attempt + " failed:", error);
+      lastError = error;
+
+      if (attempt < maxAttempts) {
+        await new Promise(function(resolve) {
+          setTimeout(resolve, 2500);
+        });
+      }
     }
-
-    window.lingoleapSpeakingResult = speakingData;
-    status.innerHTML = "";
-    showCombinedResult(window.lingoleapWrittenResult || {}, speakingData);
-
-  } catch(error) {
-    console.error(error);
-    status.innerHTML =
-      "❌ Something went wrong. Your written progress is still saved. Please try again.";
-  } finally {
-    button.disabled = false;
-    button.innerHTML = "✅ Complete My Assessment";
   }
+
+  console.error("Speaking assessment could not be completed:", lastError);
+  status.innerHTML =
+    "⚠️ We could not complete the final scoring yet. " +
+    "Your assessment progress is safely preserved. " +
+    "Please click Complete My Assessment to try again.";
+
+  button.disabled = false;
+  button.innerHTML = "✅ Complete My Assessment";
 }
 
 function createFallbackAssessmentId() {
