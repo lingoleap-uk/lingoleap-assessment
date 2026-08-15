@@ -282,10 +282,10 @@
     <audio id="audioPlayback" controls style="width:100%;margin-top:5px;"></audio>
   </div>
 
- <!-- Hidden speech transcript: used internally only -->
-<div style="display:none;">
-  <textarea id="speakingAnswer" rows="7"></textarea>
-</div>
+  <!-- Hidden speech transcript: used internally only -->
+  <div style="display:none;">
+    <textarea id="speakingAnswer" rows="7"></textarea>
+  </div>
 
   <button id="speakingSubmitButton" onclick="submitSpeaking()" style="width:100%;padding:15px;margin-top:20px;background:#111827;color:white;border:none;border-radius:8px;font-size:20px;cursor:pointer;">✅ Complete My Assessment</button>
   <div id="speakingStatus" style="text-align:center;margin-top:18px;font-weight:bold;"></div>
@@ -949,7 +949,7 @@ options:[
 
 const LL_STORAGE_KEY = "lingoleap_assessment_v3_draft";
 const STRIPE_PAYMENT_LINK_BASE =
-  "https://buy.stripe.com/test_00w7sL7SSgJyc416Pn4wM01";
+  "https://buy.stripe.com/00w00j1uu8d2gkh2z74wM09";
 
 let currentQuestion = 0;
 let candidateAnswers = new Array(questions.length).fill(null);
@@ -1823,8 +1823,7 @@ function showCombinedResult(written, speaking) {
   const finalValue = (writtenValue * 0.90) + (speakingValue * 0.10);
 
   let finalLevel = "A1";
-  if (finalValue >= 5.5) finalLevel = "C2";
-  else if (finalValue >= 4.5) finalLevel = "C1";
+  if (finalValue >= 4.5) finalLevel = "C1";
   else if (finalValue >= 3.5) finalLevel = "B2";
   else if (finalValue >= 2.5) finalLevel = "B1";
   else if (finalValue >= 1.5) finalLevel = "A2";
