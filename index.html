@@ -286,7 +286,7 @@ border-radius:8px;font-size:14px;cursor:pointer;">
 
   <div style="margin-top:15px;padding:12px 15px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:14px;line-height:1.5;color:#7c2d12;">
     <strong>Important Assessment Notice:</strong><br>
-    This assessment is designed exclusively for spoken English. Please answer entirely in English.
+    This assessment is based on your real recorded voice. Please answer entirely in English.
     Responses given substantially in another language, or responses containing insufficient assessable English,
     may receive the lowest provisional result or may require reassessment.
   </div>
@@ -299,12 +299,8 @@ border-radius:8px;font-size:14px;cursor:pointer;">
     <audio id="audioPlayback" controls style="width:100%;margin-top:5px;"></audio>
   </div>
 
-  <div style="margin-top:22px;">
-    <label><strong>Speech Transcript</strong></label>
-    <textarea id="speakingAnswer" rows="7" placeholder="Your speech will appear here..." style="width:100%;padding:12px;margin-top:8px;box-sizing:border-box;font-size:16px;line-height:1.5;"></textarea>
-  </div>
-
-  <button id="speakingSubmitButton" onclick="submitSpeaking()" style="width:100%;padding:15px;margin-top:20px;background:#111827;color:white;border:none;border-radius:8px;font-size:20px;cursor:pointer;">✅ Complete My Assessment</button>
+  <!-- Transcript intentionally not shown or used for scoring. Real recorded audio is the evidence. -->
+<button id="speakingSubmitButton" onclick="submitSpeaking()" style="width:100%;padding:15px;margin-top:20px;background:#111827;color:white;border:none;border-radius:8px;font-size:20px;cursor:pointer;">✅ Complete My Assessment</button>
   <div id="speakingStatus" style="text-align:center;margin-top:18px;font-weight:bold;"></div>
 </div>
 
@@ -1599,8 +1595,7 @@ async function submitAssessment() {
    SPEAKING — COMPLETE
 ====================================================== */
 
-let speakingRecognition = null;
-let speakingFinalTranscript = "";
+
 let speakingIsRecording = false;
 let speakingMediaRecorder = null;
 let speakingAudioChunks = [];
@@ -1615,11 +1610,8 @@ function showSpeakingSection() {
 }
 
 async function startSpeakingRecording() {
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert("Audio recording is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
+    alert("Audio recording is not supported in this browser. Please use a modern browser such as Chrome, Edge or Safari.");
     return;
   }
 
@@ -1629,10 +1621,26 @@ async function startSpeakingRecording() {
 
     speakingAudioChunks = [];
     speakingAudioBlob = null;
-    speakingMediaRecorder = new MediaRecorder(speakingMicrophoneStream);
+
+    const preferredTypes = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/ogg;codecs=opus"
+    ];
+
+    let options = {};
+    for (const type of preferredTypes) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(type)) {
+        options = {mimeType:type};
+        break;
+      }
+    }
+
+    speakingMediaRecorder = new MediaRecorder(speakingMicrophoneStream, options);
 
     speakingMediaRecorder.ondataavailable = function(event) {
-      if (event.data.size > 0) speakingAudioChunks.push(event.data);
+      if (event.data && event.data.size > 0) speakingAudioChunks.push(event.data);
     };
 
     speakingMediaRecorder.onstop = function() {
@@ -1651,47 +1659,10 @@ async function startSpeakingRecording() {
     };
 
     speakingMediaRecorder.start();
-    speakingFinalTranscript = "";
-    document.getElementById("speakingAnswer").value = "";
-
-    if (SpeechRecognition) {
-      speakingRecognition = new SpeechRecognition();
-      speakingRecognition.lang = "en-US";
-      speakingRecognition.continuous = true;
-      speakingRecognition.interimResults = true;
-
-      speakingRecognition.onresult = function(event) {
-        let interimTranscript = "";
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            speakingFinalTranscript += transcript + " ";
-          } else {
-            interimTranscript += transcript;
-          }
-        }
-
-        document.getElementById("speakingAnswer").value =
-          speakingFinalTranscript + interimTranscript;
-      };
-
-      speakingRecognition.onerror = function(event) {
-        console.log("Speech recognition:", event.error);
-      };
-
-      speakingRecognition.onend = function() {
-        if (speakingIsRecording) {
-          try { speakingRecognition.start(); } catch(error) {}
-        }
-      };
-
-      try { speakingRecognition.start(); } catch(error) {}
-    }
-
     speakingIsRecording = true;
+
     document.getElementById("recordStatus").innerHTML =
-      "🔴 Recording real audio... Speak naturally.";
+      "🔴 Recording real audio... Speak naturally in English.";
 
     const recordButton = document.getElementById("recordButton");
     const stopButton = document.getElementById("stopButton");
@@ -1712,10 +1683,6 @@ async function startSpeakingRecording() {
 
 function stopSpeakingRecording() {
   speakingIsRecording = false;
-
-  if (speakingRecognition) {
-    try { speakingRecognition.stop(); } catch(error) {}
-  }
 
   if (speakingMediaRecorder &&
       speakingMediaRecorder.state !== "inactive") {
@@ -1739,8 +1706,71 @@ function stopSpeakingRecording() {
     "⏳ Preparing your audio...";
 }
 
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function audioBufferToWav(audioBuffer) {
+  const channels = Math.min(audioBuffer.numberOfChannels, 1);
+  const sampleRate = audioBuffer.sampleRate;
+  const samples = audioBuffer.getChannelData(0);
+  const bytesPerSample = 2;
+  const blockAlign = channels * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);
+  const view = new DataView(buffer);
+
+  function writeString(offset, value) {
+    for (let i = 0; i < value.length; i++) {
+      view.setUint8(offset + i, value.charCodeAt(i));
+    }
+  }
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + samples.length * bytesPerSample, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);
+  writeString(36, "data");
+  view.setUint32(40, samples.length * bytesPerSample, true);
+
+  let offset = 44;
+  for (let i = 0; i < samples.length; i++, offset += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+  }
+  return buffer;
+}
+
+async function speakingBlobToWavBase64(blob) {
+  const raw = await blob.arrayBuffer();
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) {
+    throw new Error("This browser cannot prepare the recorded audio for assessment.");
+  }
+
+  const ctx = new AudioContextClass();
+  try {
+    const decoded = await ctx.decodeAudioData(raw.slice(0));
+    const wavBuffer = audioBufferToWav(decoded);
+    return arrayBufferToBase64(wavBuffer);
+  } finally {
+    try { await ctx.close(); } catch (error) {}
+  }
+}
+
 async function submitSpeaking() {
-  const answer = document.getElementById("speakingAnswer").value.trim();
   const status = document.getElementById("speakingStatus");
   const button = document.getElementById("speakingSubmitButton");
 
@@ -1754,77 +1784,61 @@ async function submitSpeaking() {
     return;
   }
 
-  if (!answer) {
-    alert("We could not obtain enough speech for assessment. Please record again.");
-    return;
-  }
-
   button.disabled = true;
-  button.innerHTML = "Assessing...";
+  button.innerHTML = "Assessing your recorded voice...";
 
-  const payload = {
-    name: document.getElementById("candidateName").value.trim(),
-    email: document.getElementById("candidateEmail").value.trim(),
-    company: document.getElementById("company").value.trim(),
-    department: document.getElementById("department").value.trim(),
-    answer: answer
-  };
+  try {
+    status.innerHTML =
+      "⏳ Analyzing your real recorded audio… Please wait.<br>" +
+      "<span dir='rtl'>جارٍ تحليل التسجيل الصوتي الحقيقي… يُرجى الانتظار.</span>";
 
-  const maxAttempts = 3;
-  let lastError = null;
+    const audioBase64 = await speakingBlobToWavBase64(speakingAudioBlob);
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    status.innerHTML = attempt === 1
-      ? "⏳ Analyzing your English… Please wait a few seconds."
-      : "⏳ Your assessment is still being processed securely… Please wait.";
+    const payload = {
+      name: document.getElementById("candidateName").value.trim(),
+      email: document.getElementById("candidateEmail").value.trim(),
+      company: document.getElementById("company").value.trim(),
+      department: document.getElementById("department").value.trim(),
+      audioBase64: audioBase64,
+      audioFormat: "wav",
+      assessmentType: "speaking_audio"
+    };
 
-    try {
-      const response = await fetch(SPEAKING_API, {
-        method: "POST",
-        headers: {"Content-Type": "text/plain;charset=utf-8"},
-        body: JSON.stringify(payload)
-      });
+    const response = await fetch(SPEAKING_API, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(payload)
+    });
 
-      if (!response.ok) {
-        throw new Error("Assessment service returned HTTP " + response.status);
-      }
-
-      const speakingData = await response.json();
-
-      if (!speakingData || !speakingData.success) {
-        throw new Error(
-          speakingData && speakingData.error
-            ? speakingData.error
-            : "Speaking assessment is still processing."
-        );
-      }
-
-      window.lingoleapSpeakingResult = speakingData;
-      status.innerHTML = "✅ Assessment completed successfully.";
-      showCombinedResult(window.lingoleapWrittenResult || {}, speakingData);
-      return;
-
-    } catch (error) {
-      console.warn("Speaking assessment attempt " + attempt + " failed:", error);
-      lastError = error;
-
-      if (attempt < maxAttempts) {
-        await new Promise(function(resolve) {
-          setTimeout(resolve, 2500);
-        });
-      }
+    if (!response.ok) {
+      throw new Error("Assessment service returned HTTP " + response.status);
     }
+
+    const speakingData = await response.json();
+
+    if (!speakingData || !speakingData.success) {
+      throw new Error(
+        speakingData && speakingData.error
+          ? speakingData.error
+          : "Speaking assessment could not be completed."
+      );
+    }
+
+    window.lingoleapSpeakingResult = speakingData;
+    status.innerHTML = "✅ Assessment completed successfully.";
+    showCombinedResult(window.lingoleapWrittenResult || {}, speakingData);
+
+  } catch (error) {
+    console.error("Speaking assessment failed:", error);
+    status.innerHTML =
+      "⚠️ <strong>We could not complete the final scoring yet.</strong><br>" +
+      "Your progress is safely preserved. Please try once more.<br><br>" +
+      "<span dir='rtl'>تعذّر إكمال التقييم النهائي حاليًا. تم حفظ تقدمك بأمان. يُرجى المحاولة مرة أخرى.</span>" +
+      "<br><br><small>Technical detail: " + safeText(error.message || error) + "</small>";
+
+    button.disabled = false;
+    button.innerHTML = "✅ Complete My Assessment";
   }
-
-  console.error("Speaking assessment could not be completed:", lastError);
-  status.innerHTML =
-    "⚠️ <strong>We could not complete the final scoring yet.</strong><br>" +
-    "Your assessment progress is safely preserved. Please click Complete My Assessment to try again.<br><br>" +
-    "<span dir='rtl'>تعذّر إكمال التقييم النهائي حاليًا. تم حفظ تقدمك بأمان. يُرجى الضغط على إكمال الاختبار للمحاولة مرة أخرى.</span>" +
-    (lastError ? "<br><br><small>Technical detail: " + safeText(lastError.message || lastError) + "</small>" : "");
-
-  button.disabled = false;
-  button.innerHTML = "✅ Complete My Assessment";
 }
 
 function createFallbackAssessmentId() {
@@ -1963,6 +1977,40 @@ function showCombinedResult(written, speaking) {
       <div style="margin-top:18px;padding:12px;background:#ffffff;border-radius:8px;text-align:center;font-size:14px;color:#555;">
         Assessment ID:
         <strong style="color:#111827;">${safeText(assessmentId)}</strong>
+      </div>
+
+
+      <div style="margin-top:20px;">
+        <div style="text-align:center;font-size:13px;color:#8a5b17;font-weight:bold;margin-bottom:8px;">
+          SAMPLE CERTIFICATE PREVIEW — نموذج للشهادة
+        </div>
+        <div style="
+          position:relative;overflow:hidden;background:#fffdf7;border:2px solid #c9a44d;
+          border-radius:12px;padding:24px 18px;text-align:center;box-shadow:0 5px 18px rgba(0,0,0,.08);
+        ">
+          <div style="font-size:11px;letter-spacing:2px;color:#8a6a24;">LINGOLEAP LTD · UNITED KINGDOM</div>
+          <div style="font-family:Georgia,serif;font-size:26px;font-weight:bold;margin:10px 0 4px;color:#172033;">
+            Certificate of English Proficiency Assessment
+          </div>
+          <div style="font-size:12px;color:#777;">Sample Preview / نموذج توضيحي</div>
+          <div style="margin:18px 0 4px;font-size:13px;color:#666;">Presented to</div>
+          <div style="font-family:Georgia,serif;font-size:24px;font-weight:bold;color:#111827;">
+            SAMPLE CANDIDATE
+          </div>
+          <div style="margin-top:16px;font-size:13px;color:#666;">Estimated CEFR Result</div>
+          <div style="font-size:38px;font-weight:bold;color:#8a6a24;">B2</div>
+          <div style="font-size:13px;line-height:1.7;color:#444;">
+            Grammar · Vocabulary · Reading · Listening · Speaking<br>
+            Unique Certificate ID · QR / Online Verification
+          </div>
+          <div style="margin:18px auto 0;width:74px;height:74px;border:1px solid #bbb;
+                      display:flex;align-items:center;justify-content:center;font-size:10px;color:#777;">
+            QR<br>VERIFY
+          </div>
+          <div style="margin-top:14px;font-size:10px;color:#999;">
+            Visual sample only. Your issued certificate will contain your own verified details.
+          </div>
+        </div>
       </div>
 
       <button id="commercialCertificateButton" type="button" style="
