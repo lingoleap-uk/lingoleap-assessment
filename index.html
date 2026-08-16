@@ -22,7 +22,24 @@
        CANDIDATE INFORMATION
   ========================== -->
 
-  <div id="candidateSection">
+  <div id="launchNotice" style="margin:0 0 20px;padding:16px;border:1px solid #d6b56b;
+background:#fffaf0;border-radius:10px;line-height:1.6;">
+  <strong>📱 Phone users:</strong> For the best experience, rotate your phone to landscape/horizontal mode.
+  Your assessment and result are free. A paid certificate is optional after you receive your result.
+  <hr style="border:0;border-top:1px solid #ead9ad;margin:12px 0;">
+  <div dir="rtl" style="text-align:right;">
+    <strong>📱 لمستخدمي الهاتف:</strong> للحصول على أفضل تجربة، يُرجى تدوير الهاتف إلى الوضع الأفقي.
+    الاختبار والنتيجة مجانيان. الشهادة المدفوعة اختيارية بعد ظهور النتيجة.
+  </div>
+</div>
+
+<button id="startOverButton" type="button" onclick="startOverAssessment()" style="
+width:100%;padding:11px;margin:0 0 18px;background:#fff;color:#991b1b;border:1px solid #fecaca;
+border-radius:8px;font-size:14px;cursor:pointer;">
+↻ Start a New Assessment / بدء اختبار جديد
+</button>
+
+<div id="candidateSection">
 
     <label><strong>🟢Candidate Name</strong></label>
     <input
@@ -161,7 +178,7 @@
         scrolling="no"
         frameborder="no"
         allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fuser-470076292%2Fsets%2Flingoleap-ltd-uk-yallaspeak&color=%23111827&auto_play=false&hide_related=true&show_comments=false&show_reposts=false&show_teaser=false"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/user-470076292/sets/lingoleap-ltd-uk-yallaspeak&color=%23111827&auto_play=false&hide_related=true&show_comments=false&show_reposts=false&show_teaser=false"
       ></iframe>
 
       <div id="listeningLockMessage" style="margin-top:12px;padding:10px;background:#fff;border-radius:7px;text-align:center;font-weight:bold;">
@@ -282,9 +299,9 @@
     <audio id="audioPlayback" controls style="width:100%;margin-top:5px;"></audio>
   </div>
 
-  <!-- Hidden speech transcript: used internally only -->
-  <div style="display:none;">
-    <textarea id="speakingAnswer" rows="7"></textarea>
+  <div style="margin-top:22px;">
+    <label><strong>Speech Transcript</strong></label>
+    <textarea id="speakingAnswer" rows="7" placeholder="Your speech will appear here..." style="width:100%;padding:12px;margin-top:8px;box-sizing:border-box;font-size:16px;line-height:1.5;"></textarea>
   </div>
 
   <button id="speakingSubmitButton" onclick="submitSpeaking()" style="width:100%;padding:15px;margin-top:20px;background:#111827;color:white;border:none;border-radius:8px;font-size:20px;cursor:pointer;">✅ Complete My Assessment</button>
@@ -1034,6 +1051,30 @@ function clearProgress() {
   try { localStorage.removeItem(LL_STORAGE_KEY); } catch (error) {}
 }
 
+function startOverAssessment() {
+  const ok = window.confirm(
+    "Start a completely new assessment? Saved answers and candidate details on this device will be deleted.\n\n" +
+    "بدء اختبار جديد بالكامل؟ سيتم حذف الإجابات المحفوظة وبيانات المتقدم من هذا الجهاز."
+  );
+  if (!ok) return;
+
+  clearProgress();
+  try { sessionStorage.clear(); } catch (error) {}
+
+  ["candidateName","candidateEmail","company","department"].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  candidateAnswers = new Array(questions.length).fill(null);
+  listeningCompleted = [false, false, false, false, false];
+  currentQuestion = 0;
+  window.lingoleapWrittenResult = null;
+  window.lingoleapSpeakingResult = null;
+  window.lingoleapFinalResult = null;
+  location.reload();
+}
+
 function beginAssessment() {
   const name = document.getElementById("candidateName").value.trim();
   const email = document.getElementById("candidateEmail").value.trim();
@@ -1777,9 +1818,10 @@ async function submitSpeaking() {
 
   console.error("Speaking assessment could not be completed:", lastError);
   status.innerHTML =
-    "⚠️ We could not complete the final scoring yet. " +
-    "Your assessment progress is safely preserved. " +
-    "Please click Complete My Assessment to try again.";
+    "⚠️ <strong>We could not complete the final scoring yet.</strong><br>" +
+    "Your assessment progress is safely preserved. Please click Complete My Assessment to try again.<br><br>" +
+    "<span dir='rtl'>تعذّر إكمال التقييم النهائي حاليًا. تم حفظ تقدمك بأمان. يُرجى الضغط على إكمال الاختبار للمحاولة مرة أخرى.</span>" +
+    (lastError ? "<br><br><small>Technical detail: " + safeText(lastError.message || lastError) + "</small>" : "");
 
   button.disabled = false;
   button.innerHTML = "✅ Complete My Assessment";
@@ -1805,14 +1847,13 @@ function showCombinedResult(written, speaking) {
 
   const resultBox = document.getElementById("resultBox");
 
-  const cefrValue = {A1:1,A2:2,B1:3,B2:4,C1:5,C2:6};
+  const cefrValue = {A1:1,A2:2,B1:3,B2:4,C1:5};
   const cefrNames = {
     A1:"Beginner",
     A2:"Elementary",
     B1:"Intermediate",
     B2:"Upper-Intermediate",
-    C1:"Advanced",
-    C2:"Proficient"
+    C1:"Advanced"
   };
 
   const writtenLevel = String(written.level || "A1").toUpperCase();
@@ -1904,7 +1945,7 @@ function showCombinedResult(written, speaking) {
     <div style="margin-top:22px;padding:22px;border:1px solid #d6b56b;border-radius:12px;background:#fffaf0;">
       <div style="text-align:center;">
         <div style="font-size:22px;font-weight:bold;color:#111827;">
-          📜 Unlock Your Personalized Assessment Certificate
+          📜 Optional Certificate & Verified Skills Report
         </div>
         <div style="font-size:14px;color:#555;margin-top:8px;line-height:1.6;">
           Turn your completed assessment into a professional LINGOLEAP LTD record.
@@ -1927,11 +1968,18 @@ function showCombinedResult(written, speaking) {
       <button id="commercialCertificateButton" type="button" style="
         width:100%;padding:16px;margin-top:16px;background:#111827;color:white;
         border:none;border-radius:8px;font-size:19px;font-weight:bold;cursor:pointer;">
-        💳 Get My Certificate & Verified Skills Report
+        💳 Get Optional Certificate & Verified Skills Report — $19
       </button>
 
-      <div style="text-align:center;margin-top:10px;font-size:12px;color:#8a5b17;">
-        TEST MODE — Stripe Sandbox. No real payment will be processed.
+      <div style="margin-top:14px;padding:14px;background:#f0fdf4;border-radius:9px;
+                  font-size:13px;line-height:1.65;color:#234;">
+        <strong>Important:</strong> Your assessment and result are free. The $19 payment is optional
+        and only applies if you choose a LINGOLEAP LTD UK certificate and verified skills report.
+        <br><br>
+        <div dir="rtl" style="text-align:right;">
+          <strong>مهم:</strong> الاختبار والنتيجة مجانيان. دفع 19 دولارًا اختياري فقط إذا رغبت
+          في الحصول على شهادة من LINGOLEAP LTD UK وتقرير مهارات موثّق.
+        </div>
       </div>
     </div>
 
@@ -1962,6 +2010,7 @@ function showCombinedResult(written, speaking) {
 
 /* GoDaddy HTML blocks can execute inline JavaScript in an isolated scope.
    Explicitly expose button handlers on window so inline onclick attributes always resolve. */
+window.startOverAssessment = startOverAssessment;
 window.beginAssessment = beginAssessment;
 window.nextQuestion = nextQuestion;
 window.previousQuestion = previousQuestion;
