@@ -1799,6 +1799,7 @@ async function submitSpeaking() {
       email: document.getElementById("candidateEmail").value.trim(),
       company: document.getElementById("company").value.trim(),
       department: document.getElementById("department").value.trim(),
+      writtenLevel: String((window.lingoleapWrittenResult || {}).level || "A1").toUpperCase(),
       audioBase64: audioBase64,
       audioFormat: "wav",
       assessmentType: "speaking_audio"
@@ -1886,13 +1887,11 @@ function showCombinedResult(written, speaking) {
   const candidateName =
     document.getElementById("candidateName").value.trim() || "Candidate";
 
-  // Prefer the Assessment ID returned by the scoring backend.
-  // A fallback is shown only if the backend did not return one.
   const assessmentId =
-    written.assessmentId ||
-    written.assessment_id ||
     speaking.assessmentId ||
     speaking.assessment_id ||
+    written.assessmentId ||
+    written.assessment_id ||
     createFallbackAssessmentId();
 
   window.lingoleapFinalResult = {
@@ -1904,16 +1903,7 @@ function showCombinedResult(written, speaking) {
     finalLevel:finalLevel,
     finalLevelName:cefrNames[finalLevel],
     writtenLevel:writtenLevel,
-    speakingLevel:speakingLevel,
-    grammarPercentage:written.grammarPercentage || 0,
-    vocabularyPercentage:written.vocabularyPercentage || 0,
-    readingPercentage:written.readingPercentage || 0,
-    listeningPercentage:written.listeningPercentage || 0,
-    totalCorrect:written.totalCorrect || 0,
-    totalQuestions:written.totalQuestions || 90,
-    overallPercentage:written.overallPercentage || 0,
-    speakingFeedback:speaking.feedback || "",
-    recommendation:written.recommendation || ""
+    speakingLevel:speakingLevel
   };
 
   resultBox.innerHTML = `
@@ -1922,56 +1912,34 @@ function showCombinedResult(written, speaking) {
         Congratulations, ${safeText(candidateName)}! 🎉
       </div>
       <div style="font-size:16px;color:#555;">
-        Your estimated English proficiency level is
+        Your English proficiency level is
       </div>
-      <div style="font-size:58px;font-weight:bold;margin:8px 0 0;">
+      <div style="font-size:64px;font-weight:bold;margin:8px 0 0;color:#8a6a24;">
         ${safeText(finalLevel)}
       </div>
       <div style="font-size:22px;font-weight:bold;margin-bottom:12px;">
         ${safeText(cefrNames[finalLevel])}
       </div>
-      <div style="font-size:15px;color:#666;">
-        LingoLeap 5-Skill English Proficiency Assessment
+      <div style="font-size:14px;color:#666;line-height:1.6;">
+        LingoLeap 5-Skill English Proficiency Assessment<br>
+        <span dir="rtl">تقييم LingoLeap الشامل لمهارات اللغة الإنجليزية</span>
       </div>
-    </div>
-
-    <div style="background:white;border-radius:9px;padding:18px;margin-top:22px;">
-      <strong>📊 Your Skill Profile</strong>
-      <div style="margin-top:15px;line-height:2;">
-        ⚜️ Grammar: <strong>${safeText(written.grammarPercentage || 0)}%</strong><br>
-        ⚜️ Vocabulary: <strong>${safeText(written.vocabularyPercentage || 0)}%</strong><br>
-        📖 Reading: <strong>${safeText(written.readingPercentage || 0)}%</strong><br>
-        🎧 Listening: <strong>${safeText(written.listeningPercentage || 0)}%</strong><br>
-        🎙️ Speaking: <strong>${safeText(speakingLevel)}</strong>
-      </div>
-    </div>
-
-    <div style="background:white;border-radius:9px;padding:18px;margin-top:15px;line-height:1.6;">
-      <strong>🎙️ Speaking Feedback</strong><br><br>
-      ${safeText(speaking.feedback || "")}
-    </div>
-
-    <div style="background:white;border-radius:9px;padding:18px;margin-top:15px;line-height:1.6;">
-      <strong>🎯 Training Recommendation</strong><br><br>
-      ${safeText(written.recommendation || "")}
     </div>
 
     <div style="margin-top:22px;padding:22px;border:1px solid #d6b56b;border-radius:12px;background:#fffaf0;">
       <div style="text-align:center;">
-        <div style="font-size:22px;font-weight:bold;color:#111827;">
-          📜 Optional Certificate & Verified Skills Report
+        <div style="font-size:23px;font-weight:bold;color:#111827;">
+          📜 Optional LINGOLEAP LTD UK Certificate
         </div>
-        <div style="font-size:14px;color:#555;margin-top:8px;line-height:1.6;">
-          Turn your completed assessment into a professional LINGOLEAP LTD record.
+        <div style="font-size:14px;color:#555;margin-top:9px;line-height:1.7;">
+          Your assessment and result are completely free. If you would like a formal,
+          personalised record of your achievement, you may optionally purchase your
+          LINGOLEAP LTD UK certificate.
         </div>
-      </div>
-
-      <div style="margin:18px auto 0;max-width:520px;line-height:2;font-size:15px;">
-        ✅ Personalized digital assessment certificate<br>
-        ✅ Five-skill proficiency profile<br>
-        ✅ Unique Certificate ID<br>
-        ✅ Online certificate-verification record<br>
-        ✅ QR verification
+        <div dir="rtl" style="font-size:14px;color:#555;margin-top:9px;line-height:1.8;">
+          الاختبار والنتيجة مجانيان بالكامل. وإذا رغبت في توثيق مستواك، يمكنك اختيارياً
+          الحصول على شهادة شخصية من LINGOLEAP LTD UK.
+        </div>
       </div>
 
       <div style="margin-top:18px;padding:12px;background:#ffffff;border-radius:8px;text-align:center;font-size:14px;color:#555;">
@@ -1979,61 +1947,77 @@ function showCombinedResult(written, speaking) {
         <strong style="color:#111827;">${safeText(assessmentId)}</strong>
       </div>
 
-
       <div style="margin-top:20px;">
         <div style="text-align:center;font-size:13px;color:#8a5b17;font-weight:bold;margin-bottom:8px;">
-          SAMPLE CERTIFICATE PREVIEW — نموذج للشهادة
+          SAMPLE CERTIFICATE PREVIEW — نموذج توضيحي للشهادة
         </div>
+
         <div style="
-          position:relative;overflow:hidden;background:#fffdf7;border:2px solid #c9a44d;
-          border-radius:12px;padding:24px 18px;text-align:center;box-shadow:0 5px 18px rgba(0,0,0,.08);
+          position:relative;overflow:hidden;background:#fffdf7;
+          border:5px double #b78b2e;border-radius:6px;
+          padding:20px 22px;text-align:center;
+          box-shadow:0 5px 18px rgba(0,0,0,.10);
+          aspect-ratio:1.414/1;
+          display:flex;flex-direction:column;justify-content:center;
         ">
-          <div style="font-size:11px;letter-spacing:2px;color:#8a6a24;">LINGOLEAP LTD · UNITED KINGDOM</div>
-          <div style="font-family:Georgia,serif;font-size:26px;font-weight:bold;margin:10px 0 4px;color:#172033;">
+          <div style="position:absolute;inset:8px;border:1px solid #172033;pointer-events:none;"></div>
+          <div style="position:absolute;top:12px;right:16px;font-size:10px;font-weight:bold;color:#9a6d16;">SAMPLE</div>
+          <div style="font-family:Georgia,serif;font-size:11px;letter-spacing:2px;color:#172033;font-weight:bold;">
+            LINGOLEAP LTD · UNITED KINGDOM
+          </div>
+          <div style="font-family:Georgia,serif;font-size:22px;font-weight:bold;margin:10px 0 2px;color:#172033;">
             Certificate of English Proficiency Assessment
           </div>
-          <div style="font-size:12px;color:#777;">Sample Preview / نموذج توضيحي</div>
-          <div style="margin:18px 0 4px;font-size:13px;color:#666;">Presented to</div>
-          <div style="font-family:Georgia,serif;font-size:24px;font-weight:bold;color:#111827;">
+          <div style="font-size:11px;color:#777;">THIS IS TO CERTIFY THAT</div>
+          <div style="font-family:Georgia,serif;font-size:22px;font-weight:bold;color:#111827;margin-top:7px;">
             SAMPLE CANDIDATE
           </div>
-          <div style="margin-top:16px;font-size:13px;color:#666;">Estimated CEFR Result</div>
-          <div style="font-size:38px;font-weight:bold;color:#8a6a24;">B2</div>
-          <div style="font-size:13px;line-height:1.7;color:#444;">
-            Grammar · Vocabulary · Reading · Listening · Speaking<br>
-            Unique Certificate ID · QR / Online Verification
+          <div style="width:58%;border-bottom:1px solid #b78b2e;margin:3px auto 10px;"></div>
+          <div style="font-size:11px;color:#666;">CEFR ENGLISH LEVEL</div>
+          <div style="font-size:38px;font-weight:bold;color:#8a6a24;line-height:1.05;">B2</div>
+          <div style="font-size:12px;color:#555;margin-top:4px;">Upper-Intermediate</div>
+          <div style="margin:13px auto 0;font-size:9px;color:#777;line-height:1.6;">
+            Assessment ID · Certificate ID · Issue Date · QR Verification
           </div>
-          <div style="margin:18px auto 0;width:74px;height:74px;border:1px solid #bbb;
-                      display:flex;align-items:center;justify-content:center;font-size:10px;color:#777;">
+          <div style="position:absolute;right:26px;bottom:20px;width:42px;height:42px;border:1px solid #b78b2e;
+                      display:flex;align-items:center;justify-content:center;font-size:8px;color:#777;background:white;">
             QR<br>VERIFY
           </div>
-          <div style="margin-top:14px;font-size:10px;color:#999;">
-            Visual sample only. Your issued certificate will contain your own verified details.
+          <div style="position:absolute;left:26px;bottom:21px;font-family:Georgia,serif;font-size:10px;color:#555;">
+            Authorised Signature
           </div>
+        </div>
+
+        <div style="margin-top:9px;text-align:center;font-size:11px;color:#777;line-height:1.5;">
+          Visual sample only. The issued certificate contains the candidate's name,
+          CEFR level, IDs, issue date and verification QR.
+          <br>
+          <span dir="rtl">نموذج توضيحي فقط. تحمل الشهادة الفعلية اسم المرشح ومستوى CEFR وبيانات التحقق.</span>
         </div>
       </div>
 
       <button id="commercialCertificateButton" type="button" style="
-        width:100%;padding:16px;margin-top:16px;background:#111827;color:white;
+        width:100%;padding:16px;margin-top:18px;background:#111827;color:white;
         border:none;border-radius:8px;font-size:19px;font-weight:bold;cursor:pointer;">
-        💳 Get Optional Certificate & Verified Skills Report — $19
+        💳 Get My Verified Certificate — $19
       </button>
 
       <div style="margin-top:14px;padding:14px;background:#f0fdf4;border-radius:9px;
-                  font-size:13px;line-height:1.65;color:#234;">
-        <strong>Important:</strong> Your assessment and result are free. The $19 payment is optional
-        and only applies if you choose a LINGOLEAP LTD UK certificate and verified skills report.
+                  font-size:13px;line-height:1.7;color:#234;">
+        <strong>Important:</strong> The $19 payment is only for the optional certificate.
+        Your assessment and CEFR result remain free. Detailed skill records are retained
+        separately and can be provided when appropriately requested.
         <br><br>
         <div dir="rtl" style="text-align:right;">
-          <strong>مهم:</strong> الاختبار والنتيجة مجانيان. دفع 19 دولارًا اختياري فقط إذا رغبت
-          في الحصول على شهادة من LINGOLEAP LTD UK وتقرير مهارات موثّق.
+          <strong>مهم:</strong> مبلغ 19 دولاراً خاص بالشهادة الاختيارية فقط.
+          الاختبار ونتيجة CEFR يظلان مجانيين. ويتم الاحتفاظ بالتفاصيل المهارية بشكل منفصل
+          ويمكن توفيرها عند الطلب المناسب.
         </div>
       </div>
     </div>
 
-    <p style="font-size:13px;color:#666;line-height:1.5;text-align:center;margin-top:20px;">
-      Your displayed result is a preliminary CEFR placement estimate.
-      Any paid certificate records performance on the LingoLeap English Proficiency Assessment
+    <p style="font-size:12px;color:#777;line-height:1.5;text-align:center;margin-top:18px;">
+      The certificate records performance on the LingoLeap English Proficiency Assessment
       and is issued by LINGOLEAP LTD. It does not represent third-party accreditation
       or a government-regulated language qualification.
     </p>
@@ -2051,7 +2035,6 @@ function showCombinedResult(written, speaking) {
     });
   }
 
-  // Assessment itself is complete; keep no stale question draft.
   clearProgress();
   resultBox.scrollIntoView({behavior:"auto",block:"start"});
 }
